@@ -22,7 +22,9 @@ public class AttackStick : Joystick
     public override void OnPointerDown(PointerEventData eventData)
     {
         IsPressed = true;
-        background.anchoredPosition = ScreenPointToAnchoredPosition(eventData.position);
+        Vector2 temp = ScreenPointToAnchoredPosition(eventData.position);
+        temp.x -= baseRect.rect.width; // Accounts for right-handed anchor
+        background.anchoredPosition = temp;
         base.OnPointerDown(eventData);
     }
 

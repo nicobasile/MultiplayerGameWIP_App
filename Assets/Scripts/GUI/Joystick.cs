@@ -34,7 +34,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
     [SerializeField] protected RectTransform background = null;
     [SerializeField] private RectTransform handle = null;
     
-    private RectTransform baseRect = null;
+    protected RectTransform baseRect = null;
 
     private Canvas canvas;
     private Camera cam;
@@ -46,8 +46,6 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
         HandleRange = handleRange;
         DeadZone = deadZone;
         baseRect = GetComponent<RectTransform>();
-
-        //Debug.Log("AnchrBASE: " + baseRect.anchoredPosition);
 
         canvas = GetComponentInParent<Canvas>();
         if (canvas == null)
@@ -75,6 +73,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
         Vector2 position = RectTransformUtility.WorldToScreenPoint(cam, background.position);
         Vector2 radius = background.sizeDelta / 2;
         input = (eventData.position - position) / (radius * canvas.scaleFactor);
+
         FormatInput();
         HandleInput(input.magnitude, input.normalized, radius, cam);
         handle.anchoredPosition = input * radius * handleRange;
@@ -144,7 +143,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
         Vector2 localPoint = Vector2.zero;
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(baseRect, screenPosition, cam, out localPoint))
         {
-            Vector2 pivotOffset = baseRect.pivot * baseRect.sizeDelta;
+            Vector2 pivotOffset = baseRect.pivot * baseRect.sizeDelta;           
             return localPoint - (background.anchorMax * baseRect.sizeDelta) + pivotOffset;
         }
         return Vector2.zero;
