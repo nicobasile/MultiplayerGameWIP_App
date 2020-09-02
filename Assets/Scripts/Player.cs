@@ -56,6 +56,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (photonView.IsMine)
         {
+            PlayerCamera.transform.SetParent(null, false);
+
             _object = GetComponent<GeneralController>();
             moveStick = FindObjectOfType<MoveStick>();
             attackStick = FindObjectOfType<AttackStick>();
@@ -106,12 +108,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             //if( transform.localScale.x < 0f )
             //    transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
             photonView.RPC("FlipSprite_RIGHT", RpcTarget.AllBuffered);
+            PlayerCamera.GetComponent<PlayerCameraController>().m_XOffset = 2;
         }
         else if (normalizedHorizontalSpeed < 0 || Input.GetKey(KeyCode.LeftArrow)) // Left
         {
             //if( transform.localScale.x > 0f )
             //    transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
             photonView.RPC("FlipSprite_LEFT", RpcTarget.AllBuffered);
+            PlayerCamera.GetComponent<PlayerCameraController>().m_XOffset = -2;
         }
 
         // Apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control

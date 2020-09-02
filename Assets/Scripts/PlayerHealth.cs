@@ -18,7 +18,14 @@ public class PlayerHealth : MonoBehaviourPunCallbacks
     void Awake()
     {
         if (photonView.IsMine)
+        {
             GameManager.Instance.localPlayer = this.gameObject;
+            BarImage.color = Color.green;
+        }
+        else
+        {
+            BarImage.color = Color.red;
+        }
     }
 
     [PunRPC]

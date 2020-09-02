@@ -44,6 +44,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
                 playersFoundText.text = PhotonNetwork.PlayerList.Length + "/2 Players";
                 if (PhotonNetwork.PlayerList.Length == 2 && PhotonNetwork.IsMasterClient)
                 {
+                    Waiting = false;
                     WaitingPanel.SetActive(false);
                     LoadArena();
                 }
@@ -53,29 +54,67 @@ public class MenuManager : MonoBehaviourPunCallbacks
                 playersFoundText.text = PhotonNetwork.PlayerList.Length + "/4 Players";
                 if (PhotonNetwork.PlayerList.Length == 4 && PhotonNetwork.IsMasterClient)
                 {
+                    Waiting = false;
                     WaitingPanel.SetActive(false);
                     LoadArena();
                 }            
             }
-
-            Waiting = false;
+            else if (gameModeText.text == "Training")
+            {
+                playersFoundText.text = PhotonNetwork.PlayerList.Length + "/0 Players";
+                if (PhotonNetwork.PlayerList.Length == 1 && PhotonNetwork.IsMasterClient)
+                {
+                    Waiting = false;
+                    WaitingPanel.SetActive(false);
+                    LoadArena();
+                }            
+            }
         }
     }
+
+    #region Photon Calls
 
     public override void OnConnectedToMaster()
     {
         PhotonNetwork.JoinLobby(TypedLobby.Default);
-        Debug.Log("Connected to Master");
+        Debug.Log("OnConnectedToMaster()");
+        base.OnConnectedToMaster();   
     }
 
     public override void OnJoinedLobby()
     {
         LobbyPanel.SetActive(false);
         SignUpPanel.SetActive(true);
-        Debug.Log("Joined Lobby");
+        Debug.Log("OnJoinedLobby()");
+        base.OnJoinedLobby();   
+    }
+
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        Debug.Log("No random rooms exist, creating room now...");
+        if (gameModeText.text == "Casual 1v1")
+            CreateCustomRoom(2);
+        else if (gameModeText.text == "Casual BR")
+            CreateCustomRoom(4);
+        base.OnJoinRandomFailed(returnCode, message);
+    }
+
+    public override void OnJoinedRoom()
+    {
+        Waiting = true;      
+        Debug.Log("Joined Room");
+        base.OnJoinedRoom();   
+    }
+
+    public void LoadArena()
+    {
+        PhotonNetwork.LoadLevel("FirstLevel");
+        Debug.Log("Joined FirstLevel");
     }
 
     public void OnDisconnectedFromPhoton() { Debug.Log("Lost Connection to Photon"); }
+
+    #endregion
 
     #region UI
 
@@ -112,33 +151,6 @@ public class MenuManager : MonoBehaviourPunCallbacks
         Debug.Log("Player name is: " + PhotonNetwork.LocalPlayer.NickName);
     }
 
-    public void OnClick_ReadyUp()
-    {
-        LobbyPanel.SetActive(false);
-        WaitingPanel.SetActive(true);
-
-        Waiting = true;
-
-        if (gameModeText.text == "Casual 1v1")
-        {
-            playersFoundText.text = "1/2 Players";
-            PhotonNetwork.JoinRandomRoom(null, 2, MatchmakingMode.FillRoom, null, null);
-        }
-        else if (gameModeText.text == "Casual BR")
-        {
-            playersFoundText.text = "1/4 Players";
-            PhotonNetwork.JoinRandomRoom(null, 4, MatchmakingMode.FillRoom, null, null);
-        }
-        else
-        {
-            RoomOptions roomOptions = new RoomOptions();
-            roomOptions.MaxPlayers = 8;
-            PhotonNetwork.JoinOrCreateRoom("TEMP", roomOptions, TypedLobby.Default);
-            Debug.Log("Joined Training Room");
-            LoadArena();
-        }
-    }
-
     public void OnClick_ToLobby()
     {
         DisableAllPanels();
@@ -155,35 +167,34 @@ public class MenuManager : MonoBehaviourPunCallbacks
     public void OnClick_SelectTraining() { gameModeText.text = "Training"; OnClick_ToLobby(); }
     public void OnClick_SelectCasualBR() { gameModeText.text = "Casual BR"; OnClick_ToLobby(); }
 
-    public void OnClick_OnJoinRoom()
+    public void OnClick_ReadyUp()
     {
-        RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 4;
-        PhotonNetwork.JoinOrCreateRoom(JoinOrCreateRoomInput.text, roomOptions, TypedLobby.Default);
-        Debug.Log("Joining Room: " + JoinOrCreateRoomInput.text);
-    }
+        LobbyPanel.SetActive(false);
+        WaitingPanel.SetActive(true);
 
-    public override void OnJoinRandomFailed(short returnCode, string message)
-    {
-        Debug.Log("No random rooms exist, creating room now...");
         if (gameModeText.text == "Casual 1v1")
-            CreateCustomRoom(2);
+        {
+            playersFoundText.text = "0/2 Players";
+            PhotonNetwork.JoinRandomRoom(null, 2, MatchmakingMode.FillRoom, null, null);
+        }
         else if (gameModeText.text == "Casual BR")
-            CreateCustomRoom(4);
+        {
+            playersFoundText.text = "0/4 Players";
+            PhotonNetwork.JoinRandomRoom(null, 4, MatchmakingMode.FillRoom, null, null);
+        }
+        else if (gameModeText.text == "Training")
+        {
+            playersFoundText.text = "0/0 Players";
+            CreateCustomRoom(8);
+        }
     }
 
     private void CreateCustomRoom(int maxPlayers)
     {
+        Debug.Log("CreateCustomRoom(" + maxPlayers + ")");
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = Convert.ToByte(maxPlayers);
-        PhotonNetwork.CreateRoom(null, roomOptions, null);
-    }
-
-
-    public void LoadArena()
-    {
-        PhotonNetwork.LoadLevel("FirstLevel");
-        Debug.Log("Joined FirstLevel");
+        PhotonNetwork.CreateRoom(null, roomOptions, null, null);
     }
 
     #endregion
