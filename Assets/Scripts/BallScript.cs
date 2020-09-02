@@ -66,9 +66,7 @@ public class BallScript : MonoBehaviourPunCallbacks
         else if (target != null && (!target.IsMine || target.IsSceneView))
         {
             if (collision.tag == "Player")
-            {
                 target.RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
-            }
             this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);
         }
     }

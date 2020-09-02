@@ -46,7 +46,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
                 {
                     Waiting = false;
                     WaitingPanel.SetActive(false);
-                    LoadArena();
+                    LoadArena("FirstLevel");
                 }
             }
             else if (gameModeText.text == "Casual BR")
@@ -56,7 +56,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
                 {
                     Waiting = false;
                     WaitingPanel.SetActive(false);
-                    LoadArena();
+                    LoadArena("SecondLevel");
                 }            
             }
             else if (gameModeText.text == "Training")
@@ -66,7 +66,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
                 {
                     Waiting = false;
                     WaitingPanel.SetActive(false);
-                    LoadArena();
+                    LoadArena("SecondLevel");
                 }            
             }
         }
@@ -106,10 +106,10 @@ public class MenuManager : MonoBehaviourPunCallbacks
         base.OnJoinedRoom();   
     }
 
-    public void LoadArena()
+    public void LoadArena(string LevelName)
     {
-        PhotonNetwork.LoadLevel("FirstLevel");
-        Debug.Log("Joined FirstLevel");
+        PhotonNetwork.LoadLevel(LevelName);
+        Debug.Log("Joined " + LevelName);
     }
 
     public void OnDisconnectedFromPhoton() { Debug.Log("Lost Connection to Photon"); }

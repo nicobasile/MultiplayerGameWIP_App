@@ -43,6 +43,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     protected AttackStick attackStick;
     protected SpecialStick specialStick;
 	protected Joybutton jumpButton;
+    private float moveSensitivity = 3f; // 1 = No increase
 
     private bool AimingLastFrame = false;
     private Vector2 AimingLocation;
@@ -102,6 +103,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         #region Horizontal Movement
 
         normalizedHorizontalSpeed = moveStick.Horizontal;
+        if (normalizedHorizontalSpeed <= .5) normalizedHorizontalSpeed *= moveSensitivity;
+        if (normalizedHorizontalSpeed > 1) normalizedHorizontalSpeed = 1;
+        else if (normalizedHorizontalSpeed < -1) normalizedHorizontalSpeed = -1;
+        
+        //Debug.Log(normalizedHorizontalSpeed);
 
         if (normalizedHorizontalSpeed > 0 || Input.GetKey(KeyCode.RightArrow)) // Right
         {
