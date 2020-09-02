@@ -12,7 +12,7 @@ public class MoveStick : Joystick
 
     protected override void Start()
     {
-        defaultPosition = new Vector2(250.0f, 250.0f);
+        defaultPosition = this.gameObject.transform.GetChild(0).GetComponent<RectTransform>().anchoredPosition;
         MoveThreshold = moveThreshold;
         base.Start();
     }

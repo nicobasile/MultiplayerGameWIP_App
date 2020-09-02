@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,26 +14,52 @@ public class MenuManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject SignUpPanel, LobbyPanel, DirectConnectPanel;
     [SerializeField] private GameObject CharacterSelectPanel, ProfilePanel, ShopPanel;
     [SerializeField] private GameObject FriendsPanel, GameModePanel, SettingsPanel;
-    [SerializeField] private GameObject LoadingPanel;
+    [SerializeField] private GameObject LoadingPanel, WaitingPanel;
 
     [Header("Other")]
-    [SerializeField] private GameObject CreateUserNameButton, StartMatchButton;
+    [SerializeField] private GameObject CreateUserNameButton;
     [SerializeField] private InputField UserNameInput, JoinOrCreateRoomInput;
     [SerializeField] private Text lobbyLeaderStatus, profileText, gameModeText;
+    [SerializeField] private Text playersFoundText;
     #pragma warning restore 0649
-    
+
+    [HideInInspector] private bool Waiting = false;
+
     private void Awake()
     {
         DisableAllPanels();
         LoadingPanel.SetActive(true);
         PhotonNetwork.GameVersion = gameVersion;
         PhotonNetwork.ConnectUsingSettings();
+        PhotonNetwork.AutomaticallySyncScene = true;
         Debug.Log("Connecting to Photon...");
     }
 
-    private void Start()
+    private void Update()
     {
-        StartMatchButton.SetActive(false);
+        if (Waiting)
+        {
+            if (gameModeText.text == "Casual 1v1")
+            {
+                playersFoundText.text = PhotonNetwork.PlayerList.Length + "/2 Players";
+                if (PhotonNetwork.PlayerList.Length == 2 && PhotonNetwork.IsMasterClient)
+                {
+                    WaitingPanel.SetActive(false);
+                    LoadArena();
+                }
+            }
+            else if (gameModeText.text == "Casual BR")
+            {
+                playersFoundText.text = PhotonNetwork.PlayerList.Length + "/4 Players";
+                if (PhotonNetwork.PlayerList.Length == 4 && PhotonNetwork.IsMasterClient)
+                {
+                    WaitingPanel.SetActive(false);
+                    LoadArena();
+                }            
+            }
+
+            Waiting = false;
+        }
     }
 
     public override void OnConnectedToMaster()
@@ -48,10 +75,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
         Debug.Log("Joined Lobby");
     }
 
-    public void OnDisconnectedFromPhoton()
-    {
-        Debug.Log("Lost Connection to Photon");
-    }
+    public void OnDisconnectedFromPhoton() { Debug.Log("Lost Connection to Photon"); }
 
     #region UI
 
@@ -66,6 +90,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
         FriendsPanel.SetActive(false);
         GameModePanel.SetActive(false);
         SettingsPanel.SetActive(false);
+        WaitingPanel.SetActive(false);
     }
 
     public void OnChange_UserNameInput()
@@ -90,9 +115,28 @@ public class MenuManager : MonoBehaviourPunCallbacks
     public void OnClick_ReadyUp()
     {
         LobbyPanel.SetActive(false);
-        DirectConnectPanel.SetActive(true);
+        WaitingPanel.SetActive(true);
 
-        Debug.Log("Player name is: " + PhotonNetwork.LocalPlayer.NickName);
+        Waiting = true;
+
+        if (gameModeText.text == "Casual 1v1")
+        {
+            playersFoundText.text = "1/2 Players";
+            PhotonNetwork.JoinRandomRoom(null, 2, MatchmakingMode.FillRoom, null, null);
+        }
+        else if (gameModeText.text == "Casual BR")
+        {
+            playersFoundText.text = "1/4 Players";
+            PhotonNetwork.JoinRandomRoom(null, 4, MatchmakingMode.FillRoom, null, null);
+        }
+        else
+        {
+            RoomOptions roomOptions = new RoomOptions();
+            roomOptions.MaxPlayers = 8;
+            PhotonNetwork.JoinOrCreateRoom("TEMP", roomOptions, TypedLobby.Default);
+            Debug.Log("Joined Training Room");
+            LoadArena();
+        }
     }
 
     public void OnClick_ToLobby()
@@ -107,9 +151,9 @@ public class MenuManager : MonoBehaviourPunCallbacks
         GameModePanel.SetActive(true);
     }
 
-    public void OnClick_SelectRanked() { gameModeText.text = "Ranked"; OnClick_ToLobby(); }
-    public void OnClick_SelectCasual() { gameModeText.text = "Casual"; OnClick_ToLobby(); }
+    public void OnClick_SelectCasual1v1() { gameModeText.text = "Casual 1v1"; OnClick_ToLobby(); }
     public void OnClick_SelectTraining() { gameModeText.text = "Training"; OnClick_ToLobby(); }
+    public void OnClick_SelectCasualBR() { gameModeText.text = "Casual BR"; OnClick_ToLobby(); }
 
     public void OnClick_OnJoinRoom()
     {
@@ -119,20 +163,22 @@ public class MenuManager : MonoBehaviourPunCallbacks
         Debug.Log("Joining Room: " + JoinOrCreateRoomInput.text);
     }
 
-    public override void OnJoinedRoom()
+    public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        PhotonNetwork.LoadLevel("FirstLevel");
-        if (PhotonNetwork.IsMasterClient)
-        {
-            //StartMatchButton.SetActive(true);
-            //lobbyLeaderStatus.text = "You are Lobby Leader";
-        }
-        else
-        {
-            //StartMatchButton.SetActive(true);
-            //lobbyLeaderStatus.text = "Wait for Lobby Leader to Start The Game";
-        }
+        Debug.Log("No random rooms exist, creating room now...");
+        if (gameModeText.text == "Casual 1v1")
+            CreateCustomRoom(2);
+        else if (gameModeText.text == "Casual BR")
+            CreateCustomRoom(4);
     }
+
+    private void CreateCustomRoom(int maxPlayers)
+    {
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = Convert.ToByte(maxPlayers);
+        PhotonNetwork.CreateRoom(null, roomOptions, null);
+    }
+
 
     public void LoadArena()
     {

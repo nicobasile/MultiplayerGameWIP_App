@@ -9,7 +9,7 @@ public class SpecialStick : Joystick
     
     protected override void Start()
     {
-        defaultPosition = new Vector2(64.0f, 64.0f);
+        defaultPosition = this.gameObject.transform.GetChild(0).GetComponent<RectTransform>().anchoredPosition;
         base.Start();
     }
 

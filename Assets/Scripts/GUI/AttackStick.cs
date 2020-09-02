@@ -14,7 +14,7 @@ public class AttackStick : Joystick
 
     protected override void Start()
     {
-        defaultPosition = new Vector2(345.0f, 260.0f);
+        defaultPosition = this.gameObject.transform.GetChild(0).GetComponent<RectTransform>().anchoredPosition;
         MoveThreshold = moveThreshold;
         base.Start();
     }
