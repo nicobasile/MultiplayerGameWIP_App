@@ -2001,6 +2001,10 @@ PrefabInstance:
       propertyPath: m_Maskable
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8170153791668043271, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8170153791961219456, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
       propertyPath: m_SizeDelta.x
       value: 80
@@ -2101,13 +2105,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handleRange: 1
-  deadZone: 0.1
+  deadZone: 0.05
   axisOptions: 0
   snapX: 0
   snapY: 0
   background: {fileID: 542015132}
   handle: {fileID: 542015133}
-  moveThreshold: 1
 --- !u!1 &542493661
 GameObject:
   m_ObjectHideFlags: 0
@@ -2725,13 +2728,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handleRange: 1
-  deadZone: 0
+  deadZone: 0.1
   axisOptions: 0
   snapX: 0
   snapY: 0
   background: {fileID: 989719502}
   handle: {fileID: 989719503}
-  moveThreshold: 0.5
   IsPressed: 0
 --- !u!1001 &1042222516
 PrefabInstance:

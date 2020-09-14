@@ -8,7 +8,7 @@ public class MoveStick : Joystick
     private Vector2 defaultPosition;
     private float MoveThreshold { get { return moveThreshold; } set { moveThreshold = Mathf.Abs(value); } }
 
-    [SerializeField] private float moveThreshold = 1f;
+    private float moveThreshold = .6f;
 
     protected override void Start()
     {

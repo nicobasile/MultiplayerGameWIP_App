@@ -43,7 +43,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     protected AttackStick attackStick;
     protected SpecialStick specialStick;
 	protected Joybutton jumpButton;
-    private float moveSensitivity = 3f; // 1 = No increase
+
+    protected float moveMultiplier = 2f;
+    protected PlayerCameraController cameraController;
+    protected float cameraOffset = 2f;
 
     private bool AimingLastFrame = false;
     private Vector2 AimingLocation;
@@ -58,6 +61,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if (photonView.IsMine)
         {
             PlayerCamera.transform.SetParent(null, false);
+            cameraController = PlayerCamera.GetComponent<PlayerCameraController>();
+            cameraController.m_XOffset = cameraOffset;
 
             _object = GetComponent<GeneralController>();
             moveStick = FindObjectOfType<MoveStick>();
@@ -103,25 +108,22 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         #region Horizontal Movement
 
         normalizedHorizontalSpeed = moveStick.Horizontal;
-        if (normalizedHorizontalSpeed <= .5) normalizedHorizontalSpeed *= moveSensitivity;
-        if (normalizedHorizontalSpeed > 1) normalizedHorizontalSpeed = 1;
-        else if (normalizedHorizontalSpeed < -1) normalizedHorizontalSpeed = -1;
-        
-        //Debug.Log(normalizedHorizontalSpeed);
 
         if (normalizedHorizontalSpeed > 0 || Input.GetKey(KeyCode.RightArrow)) // Right
         {
-            //if( transform.localScale.x < 0f )
-            //    transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
+            //normalizedHorizontalSpeed *= moveMultiplier;
+            if (normalizedHorizontalSpeed < .33) normalizedHorizontalSpeed = .5f;
+            else normalizedHorizontalSpeed = 1;
             photonView.RPC("FlipSprite_RIGHT", RpcTarget.AllBuffered);
-            PlayerCamera.GetComponent<PlayerCameraController>().m_XOffset = 2;
+            cameraController.m_XOffset = cameraOffset;
         }
         else if (normalizedHorizontalSpeed < 0 || Input.GetKey(KeyCode.LeftArrow)) // Left
         {
-            //if( transform.localScale.x > 0f )
-            //    transform.localScale = new Vector3( -transform.localScale.x, transform.localScale.y, transform.localScale.z );
+            //normalizedHorizontalSpeed *= moveMultiplier;
+            if (normalizedHorizontalSpeed > -.33) normalizedHorizontalSpeed = -.5f;
+            else normalizedHorizontalSpeed = -1;
             photonView.RPC("FlipSprite_LEFT", RpcTarget.AllBuffered);
-            PlayerCamera.GetComponent<PlayerCameraController>().m_XOffset = -2;
+            cameraController.m_XOffset = -cameraOffset;
         }
 
         // Apply horizontal speed smoothing it. dont really do this with Lerp. Use SmoothDamp or something that provides more control
@@ -169,21 +171,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         #endregion
 
-        //var move = new Vector3(moveStick.Horizontal, 0);
-        //transform.position += move * runSpeed * Time.deltaTime;
-
-        /*normalizedHorizontalSpeed = moveStick.Horizontal;
-
-        if (normalizedHorizontalSpeed > 0)
-        {
-            photonView.RPC("FlipSprite_RIGHT", RpcTarget.AllBuffered);
-        }
-
-        if (normalizedHorizontalSpeed < 0)
-        {
-            photonView.RPC("FlipSprite_LEFT", RpcTarget.AllBuffered);
-        }*/
-
         _object.move(_velocity * Time.deltaTime);
         _velocity = _object.velocity; // Update calculated object velocity
 
@@ -193,10 +180,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             AimingLastFrame = true;
             AimingLocation = attackStick.Direction;
+            Aim(AimingLocation);
         }
         else
         {
-            if (AimingLastFrame && (Mathf.Abs(AimingLocation.x) >= .08 || Mathf.Abs(AimingLocation.y) >= .08)) 
+            if (AimingLastFrame)// && (Mathf.Abs(AimingLocation.x) >= .08 || Mathf.Abs(AimingLocation.y) >= .08)) 
                 Attack(AimingLocation);
             AimingLastFrame = false;
         }
@@ -209,6 +197,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     [PunRPC]
     private void FlipSprite_LEFT() { Sprite.flipX = true; }
+
+    private void Aim(Vector2 location)
+    {
+        
+    }
 
     private void Attack(Vector2 location)
     {        
