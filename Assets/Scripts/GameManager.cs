@@ -93,10 +93,19 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         MainCamera.SetActive(false);
         var index = Random.Range(0, spawnPoints.Length);
+        if (Player_PREFAB == null) Debug.Log("PlayerPrefab???");
+        if (spawnPoints[index] == null) Debug.Log("index");
+
         PhotonNetwork.Instantiate(Player_PREFAB.name, spawnPoints[index].transform.position, Quaternion.identity, 0);
-        //SceneCamera.SetActive(false);
-        //MainCanvas.SetActive(false);
     }
 
+    public void OnClick_LoadLobby()
+    {
+        PhotonNetwork.LeaveRoom();
+    }
 
+    public override void OnLeftRoom()
+    {
+        PhotonNetwork.LoadLevel("MainMenu");
+    }
 }

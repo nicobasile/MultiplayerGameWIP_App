@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject PlayerCamera;
     public Text PlayerNameText;
     public GameObject Ball_PREFAB;
+    public GameObject AimingBox;
     public Transform firePoint;
 
     [Space]
@@ -25,11 +27,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public float groundFriction = 20f;
     public float airStrafe = 5f;
     public float wallCling = 0f;
+    public static float attackSpeed = 2f;
+    public float attackTimer;
 
     [Space]
 
     [Header("Booleans")]
     public bool DisableInput = false;
+    public bool canAttack = true;
 
     [Space]
 
@@ -46,7 +51,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     protected float moveMultiplier = 2f;
     protected PlayerCameraController cameraController;
-    protected float cameraOffset = 2f;
+    protected float cameraOffset = 1f;
 
     private bool AimingLastFrame = false;
     private Vector2 AimingLocation;
@@ -176,16 +181,25 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         #region Attacking
 
+        if (attackTimer < 0) 
+            canAttack = true;
+        else
+        {
+            canAttack = false;
+            attackTimer -= Time.deltaTime;
+        }
+
         if (attackStick.IsPressed) 
         {
             AimingLastFrame = true;
             AimingLocation = attackStick.Direction;
+            AimingBox.SetActive(true);
             Aim(AimingLocation);
         }
-        else
+        else if (AimingLastFrame && (Mathf.Abs(AimingLocation.x) >= .08 || Mathf.Abs(AimingLocation.y) >= .08)) 
         {
-            if (AimingLastFrame)// && (Mathf.Abs(AimingLocation.x) >= .08 || Mathf.Abs(AimingLocation.y) >= .08)) 
-                Attack(AimingLocation);
+            AimingBox.SetActive(false);
+            if (canAttack) Attack(AimingLocation);
             AimingLastFrame = false;
         }
 
@@ -200,13 +214,24 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
     private void Aim(Vector2 location)
     {
-        
+        var normal = new Vector2(1, 0);
+        double angleInRadians = Math.Atan2(location.y, location.x) - Math.Atan2(normal.y, normal.x);
+        float angle = (float) (angleInRadians * (180.0 / Math.PI));
+
+        //Debug.Log("Location: " + location + "     |     " + angle);
+
+        if (canAttack) AimingBox.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, (float).25);
+        else AimingBox.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, (float).25);
+
+        AimingBox.transform.localEulerAngles = new Vector3(0, 0, angle);
     }
 
     private void Attack(Vector2 location)
     {        
         GameObject obj = PhotonNetwork.Instantiate(Ball_PREFAB.name, new Vector2(firePoint.transform.position.x, firePoint.transform.position.y), Quaternion.identity, 0);
         obj.GetComponent<PhotonView>().RPC("SetDirection", RpcTarget.AllBuffered, location);   
+
+        attackTimer = attackSpeed;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

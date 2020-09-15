@@ -1,0 +1,37 @@
+{
+  "client": [
+    {
+      "services": {
+        "appinvite_service": {
+          "status": 1
+        }, 
+        "analytics_service": {
+          "status": 0
+        }
+      }, 
+      "oauth_client": [
+        {
+          "client_id": "962777670864-k78g677jp0ufluoc2g798die3jsr5d3g.apps.googleusercontent.com"
+        }
+      ], 
+      "api_key": [
+        {
+          "current_key": "AIzaSyCifOm6v9-b9pn7HRFMcQ4ay2qvLsogy5U"
+        }
+      ], 
+      "client_info": {
+        "mobilesdk_app_id": "1:962777670864:ios:4574ac6dd0ca6000b8aad5", 
+        "android_client_info": {
+          "package_name": "com.nicolasbasile.WIPGame"
+        }
+      }
+    }
+  ], 
+  "configuration_version": "1", 
+  "project_info": {
+    "storage_bucket": "wipgame-ba361.appspot.com", 
+    "project_id": "wipgame-ba361", 
+    "firebase_url": "https://wipgame-ba361.firebaseio.com", 
+    "project_number": "962777670864"
+  }
+}
