@@ -18,17 +18,24 @@ public class MenuManager : MonoBehaviourPunCallbacks
     private string gameVersion = "0.1";
 
     #pragma warning disable 0649
+    [Header("Panels")]
     [SerializeField] private GameObject LobbyPanel;
     [SerializeField] private GameObject CharacterSelectPanel, ProfilePanel, ShopPanel;
     [SerializeField] private GameObject FriendsPanel, GameModePanel, SettingsPanel;
     [SerializeField] private GameObject LoadingPanel, WaitingPanel;
     [SerializeField] private GameObject AccountPanel, ProcessPanel, UsernamePanel;
 
-    [Header("Other")]
-    [SerializeField] private GameObject CreateAccountButton, LogInButton, SignInButton, SignUpButton;
-    [SerializeField] private InputField UserNameInput, EmailInput, PasswordInput;
-    [SerializeField] private Text profileText, gameModeText, gameModeTypeText;
-    [SerializeField] private Text coinsText, bitsText;
+    [Header("Buttons")]
+    [SerializeField] private GameObject CreateAccountButton;
+    [SerializeField] private GameObject LogInButton, SignInButton, SignUpButton;
+
+    [Header("Input Fields")]
+    [SerializeField] private InputField UserNameInput;
+    [SerializeField] private InputField EmailInput, PasswordInput;
+    
+    [Header("Text Fields")]
+    [SerializeField] private Text profileText;
+    [SerializeField] private Text gameModeText, gameModeTypeText, coinsText, bitsText;
     [SerializeField] private Text playersFoundText;
     #pragma warning restore 0649
 
@@ -64,35 +71,19 @@ public class MenuManager : MonoBehaviourPunCallbacks
                 if (gameModeText.text == "Duel")
                     WaitingRoom(2);
                 else if (gameModeText.text == "TDM")
-                {
-                    playersFoundText.text = PhotonNetwork.PlayerList.Length + "/4 Players";
-                    if (PhotonNetwork.PlayerList.Length == 4 && PhotonNetwork.IsMasterClient)
-                    {
-                        Waiting = false;
-                        WaitingPanel.SetActive(false);
-                        LoadArena("SecondLevel");
-                    }            
-                }
+                    WaitingRoom(4);
                 else if (gameModeText.text == "FFA")
-                {
-                    playersFoundText.text = PhotonNetwork.PlayerList.Length + "/8 Players";
-                    if (PhotonNetwork.PlayerList.Length == 8 && PhotonNetwork.IsMasterClient)
-                    {
-                        Waiting = false;
-                        WaitingPanel.SetActive(false);
-                        LoadArena("SecondLevel");
-                    }            
-                }
+                    WaitingRoom(8);
             }
-            else if (gameModeText.text == "Training")
+            else if (gameModeTypeText.text == "Ranked")
             {
-                playersFoundText.text = PhotonNetwork.PlayerList.Length + "/0 Players";
-                if (PhotonNetwork.PlayerList.Length == 1 && PhotonNetwork.IsMasterClient)
-                {
-                    Waiting = false;
-                    WaitingPanel.SetActive(false);
-                    LoadArena("TrainingLevel");
-                }            
+                // Ranked not implemented yet
+            }
+            else if (gameModeTypeText.text == "Practice")
+            {
+                // Tutorial not implemented yet
+                if (gameModeText.text == "Training")
+                    WaitingRoom(1);
             }
         }
     }
@@ -116,16 +107,17 @@ public class MenuManager : MonoBehaviourPunCallbacks
             Debug.Log("JoinedLobby()");
             base.OnJoinedLobby();   
         }
-        else HasSaveData = true;
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         Debug.Log("No random rooms exist, creating room now...");
-        if (gameModeText.text == "Casual 1v1")
+        if (gameModeText.text == "Duel")
             CreateCustomRoom(2);
-        else if (gameModeText.text == "Casual BR")
+        else if (gameModeText.text == "TDM")
             CreateCustomRoom(4);
+        else if (gameModeText.text == "FFA")
+            CreateCustomRoom(8);
         base.OnJoinRandomFailed(returnCode, message);
     }
 
@@ -182,14 +174,6 @@ public class MenuManager : MonoBehaviourPunCallbacks
         SignUpButton.SetActive(true);
     }
 
-    /*public void OnChange_UserNameInput()
-    {
-        if (UserNameInput.text.Length >= 2)
-            SignInButton.SetActive(true);
-        else
-            SignInButton.SetActive(false);
-    }*/
-
     public void OnClick_SignUp()
     { 
         auth.CreateUserWithEmailAndPasswordAsync(EmailInput.text, PasswordInput.text).ContinueWith(task => {
@@ -242,6 +226,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
         auth.SignOut();
 
         File.Delete(Application.persistentDataPath + "/save.txt");
+        HasSaveData = false;
 
         PhotonNetwork.Disconnect();
 
@@ -252,46 +237,6 @@ public class MenuManager : MonoBehaviourPunCallbacks
         Awake();
     }
    
-    public void SetupProfileData()
-    {
-        usersRef = db.Collection("users");
-        docRef = usersRef.Document(EmailInput.text);
-        Dictionary<string, object> user = new Dictionary<string, object>
-        {
-            { "Username", UserNameInput.text },
-            { "Email", EmailInput.text },
-            { "Password", PasswordInput.text },
-            { "UserId", auth.CurrentUser.UserId },
-            { "Coins", 0},
-            { "Bits", 0}
-        };
-        docRef.SetAsync(user).ContinueWithOnMainThread(task => {
-            Debug.Log("Added data to the " + EmailInput.text + " document in the users collection.");
-            
-            PhotonNetwork.LocalPlayer.NickName = profileText.text;
-            Debug.Log("Player name is: " + PhotonNetwork.LocalPlayer.NickName);
-
-            LoadLobby();
-        });
-    }
-
-    public void LoadLobby()
-    {
-        docRef.GetSnapshotAsync().ContinueWithOnMainThread(task => {
-        DocumentSnapshot snapshot = task.Result;
-        if (snapshot.Exists) 
-        {
-            Dictionary<string, object> userData = snapshot.ToDictionary();
-            profileText.text = (String) userData["Username"];
-            PhotonNetwork.LocalPlayer.NickName = profileText.text;
-            coinsText.text = "Coins: " + userData["Coins"];
-            bitsText.text = "Bits: " + userData["Bits"];
-            OnClick_ToLobby();
-        } 
-        else Debug.Log(String.Format("Document {0} does not exist!", snapshot.Id));
-        });
-    }
-
     public void OnClick_ToLobby()
     {
         DisableAllPanels();
@@ -336,20 +281,25 @@ public class MenuManager : MonoBehaviourPunCallbacks
         LobbyPanel.SetActive(false);
         WaitingPanel.SetActive(true);
 
-        if (gameModeText.text == "Casual 1v1")
+        if (gameModeText.text == "Duel")
         {
             playersFoundText.text = "0/2 Players";
             PhotonNetwork.JoinRandomRoom(null, 2, MatchmakingMode.FillRoom, null, null);
         }
-        else if (gameModeText.text == "Casual BR")
+        else if (gameModeText.text == "TDM")
         {
             playersFoundText.text = "0/4 Players";
             PhotonNetwork.JoinRandomRoom(null, 4, MatchmakingMode.FillRoom, null, null);
         }
+        else if (gameModeText.text == "FFA")
+        {
+            playersFoundText.text = "0/8 Players";
+            PhotonNetwork.JoinRandomRoom(null, 8, MatchmakingMode.FillRoom, null, null);
+        }
         else if (gameModeText.text == "Training")
         {
-            playersFoundText.text = "0/0 Players";
-            CreateCustomRoom(8);
+            playersFoundText.text = "0/1 Players";
+            CreateCustomRoom(1);
         }
     }
 
@@ -368,7 +318,12 @@ public class MenuManager : MonoBehaviourPunCallbacks
         {
             Waiting = false;
             WaitingPanel.SetActive(false);
-            LoadArena("FirstLevel");
+            if (maxPlayers == 1)
+                LoadArena("TrainingLevel");
+            else if (maxPlayers == 2)
+                LoadArena("FirstLevel");
+            else
+                LoadArena("SecondLevel");
         }
     }
 
@@ -378,6 +333,58 @@ public class MenuManager : MonoBehaviourPunCallbacks
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = Convert.ToByte(maxPlayers);
         PhotonNetwork.CreateRoom(null, roomOptions, null, null);
+    }
+
+    public void SetupProfileData()
+    {
+        usersRef = db.Collection("users");
+        docRef = usersRef.Document(EmailInput.text);
+        Dictionary<string, object> user = new Dictionary<string, object>
+        {
+            { "Username", UserNameInput.text },
+            { "Email", EmailInput.text },
+            { "Password", PasswordInput.text },
+            { "UserId", auth.CurrentUser.UserId },
+            { "Coins", 0},
+            { "Bits", 0},
+            { "Statistics", new Dictionary<string, object>
+                {
+                    { "Kills", 0 },
+                    { "Deaths", 0 },
+                    { "Duel Games", 0 },
+                    { "Duel Wins", 0 },
+                    { "TDM Games", 0 },
+                    { "TDM Wins", 0 },
+                    { "FFA Games", 0 },
+                    { "FFA Wins", 0 }
+                }
+            }
+        };
+        docRef.SetAsync(user).ContinueWithOnMainThread(task => {
+            Debug.Log("Added data to the " + EmailInput.text + " document in the users collection.");
+            
+            PhotonNetwork.LocalPlayer.NickName = profileText.text;
+            Debug.Log("Player name is: " + PhotonNetwork.LocalPlayer.NickName);
+
+            LoadLobby();
+        });
+    }
+
+    public void LoadLobby()
+    {
+        docRef.GetSnapshotAsync().ContinueWithOnMainThread(task => {
+        DocumentSnapshot snapshot = task.Result;
+        if (snapshot.Exists) 
+        {
+            Dictionary<string, object> userData = snapshot.ToDictionary();
+            profileText.text = (String) userData["Username"];
+            PhotonNetwork.LocalPlayer.NickName = profileText.text;
+            coinsText.text = "Coins: " + userData["Coins"];
+            bitsText.text = "Bits: " + userData["Bits"];
+            OnClick_ToLobby();
+        } 
+        else Debug.Log(String.Format("Document {0} does not exist!", snapshot.Id));
+        });
     }
 
     private void SaveLogin()
@@ -409,6 +416,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
         }
         catch (FileNotFoundException)
         {
+            HasSaveData = false;
             return false;
         }
     }
@@ -465,6 +473,14 @@ public class MenuManager : MonoBehaviourPunCallbacks
             }  
         }  
     } 
+
+    /*public void OnChange_UserNameInput()
+    {
+        if (UserNameInput.text.Length >= 2)
+            SignInButton.SetActive(true);
+        else
+            SignInButton.SetActive(false);
+    }*/
 
     #endregion
 }

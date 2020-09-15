@@ -6,12 +6,13 @@ using Photon.Pun;
 
 public class BallScript : MonoBehaviourPunCallbacks
 {
-    public Vector2 MovingDirection;
-
     public float MoveSpeed = 6f;
     public float Distance = 1f;
     public float DestroyTime = 3f;
     public float Damage = 25f;
+
+    [HideInInspector] public GameObject ParentObject;
+    [HideInInspector] public Vector2 MovingDirection;
 
     private void Awake()
     {
@@ -57,16 +58,22 @@ public class BallScript : MonoBehaviourPunCallbacks
         if (!photonView.IsMine)
             return;
         
-        Debug.Log("Trigger: " + collision.tag);
+        //Debug.Log("Trigger: " + collision.tag);
         //Debug.Log("Ball Collided: " + collision.ClosestPoint(this.gameObject.transform.position));
         PhotonView target = collision.gameObject.GetComponent<PhotonView>();
 
         if (target == null)
+        {
             this.GetComponent<PhotonView>().RPC("Bounce", RpcTarget.AllBuffered, collision.ClosestPoint(this.gameObject.transform.position));
+            ParentObject.GetComponent<Player>().UpdateSpecialMeter(Damage);
+        }
         else if (target != null && (!target.IsMine || target.IsSceneView))
         {
             if (collision.tag == "Player")
+            {
                 target.RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
+                //ParentObject.GetComponent<Player>().UpdateSpecialMeter(Damage);
+            }
             this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);
         }
     }

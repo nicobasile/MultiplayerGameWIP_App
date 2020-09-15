@@ -14,31 +14,28 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     public SpriteRenderer Sprite;
     public GameObject PlayerCamera;
     public Text PlayerNameText;
-    public GameObject Ball_PREFAB;
+    public GameObject Projectile_Prefab;
+    public GameObject SpecialProjectile_Prefab;
     public GameObject AimingBox;
+    public GameObject SpecialAimingBox;
     public Transform firePoint;
 
     [Space]
 
     [Header("Floats and Ints")]
     public float runSpeed = 8f;
-    public float jumpForce = 3f;
-    public float gravity = -25f;
     public float groundFriction = 20f;
+    public float jumpForce = 3f;
+
+    public float gravity = -25f;
     public float airStrafe = 5f;
     public float wallCling = 0f;
+
     public static float attackSpeed = 2f;
-    public float attackTimer;
 
-    [Space]
+    [HideInInspector] public bool DisableInput = false;
+    [HideInInspector] public bool canAttack = true;
 
-    [Header("Booleans")]
-    public bool DisableInput = false;
-    public bool canAttack = true;
-
-    [Space]
-
-    [HideInInspector]
     private float normalizedHorizontalSpeed = 0;
     private GeneralController _object;
     private Vector3 _velocity;
@@ -49,11 +46,16 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     protected SpecialStick specialStick;
 	protected Joybutton jumpButton;
 
-    protected float moveMultiplier = 2f;
+    [HideInInspector] public float attackTimer;
+    [HideInInspector] public Image specialMeter;
+    [HideInInspector] public GameObject SpecialCanvas;
+    [HideInInspector] public GameObject SpecialMeterCanvas;
+
     protected PlayerCameraController cameraController;
     protected float cameraOffset = 1f;
 
     private bool AimingLastFrame = false;
+    private bool AimingSpecialLastFrame = false;
     private Vector2 AimingLocation;
 
     private void Awake()
@@ -74,6 +76,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
             attackStick = FindObjectOfType<AttackStick>();
             specialStick = FindObjectOfType<SpecialStick>();
 		    jumpButton = FindObjectOfType<Joybutton>();
+
+            SpecialCanvas = GameObject.Find("Canvas - Special");
+            SpecialMeterCanvas = GameObject.Find("Canvas - SpecialMeter");
+            specialMeter = GameObject.Find("Special Meter").GetComponent<Image>();
+            SpecialCanvas.SetActive(false);
 
             PlayerNameText.text = PhotonNetwork.LocalPlayer.NickName;
             PlayerNameText.color = Color.green;
@@ -103,9 +110,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         #region Gravity
 
-        if( _object.isGrounded )
-            _velocity.y = 0;
-
+        if(_object.isGrounded) _velocity.y = 0;
         _velocity.y += gravity * Time.deltaTime;
 
         #endregion
@@ -116,7 +121,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         if (normalizedHorizontalSpeed > 0 || Input.GetKey(KeyCode.RightArrow)) // Right
         {
-            //normalizedHorizontalSpeed *= moveMultiplier;
             if (normalizedHorizontalSpeed < .33) normalizedHorizontalSpeed = .5f;
             else normalizedHorizontalSpeed = 1;
             photonView.RPC("FlipSprite_RIGHT", RpcTarget.AllBuffered);
@@ -124,7 +128,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
         else if (normalizedHorizontalSpeed < 0 || Input.GetKey(KeyCode.LeftArrow)) // Left
         {
-            //normalizedHorizontalSpeed *= moveMultiplier;
             if (normalizedHorizontalSpeed > -.33) normalizedHorizontalSpeed = -.5f;
             else normalizedHorizontalSpeed = -1;
             photonView.RPC("FlipSprite_LEFT", RpcTarget.AllBuffered);
@@ -176,11 +179,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         #endregion
 
+        // Apply calculated velocity to player
         _object.move(_velocity * Time.deltaTime);
         _velocity = _object.velocity; // Update calculated object velocity
 
         #region Attacking
 
+        // Normal Attack
         if (attackTimer < 0) 
             canAttack = true;
         else
@@ -191,16 +196,47 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 
         if (attackStick.IsPressed) 
         {
-            AimingLastFrame = true;
             AimingLocation = attackStick.Direction;
-            AimingBox.SetActive(true);
-            Aim(AimingLocation);
+            if (Mathf.Abs(AimingLocation.x) >= .08 || Mathf.Abs(AimingLocation.y) >= .08)
+            {            
+                AimingLastFrame = true;
+                AimingBox.SetActive(true);
+                Aim(AimingLocation); 
+            }
+            else
+            {
+                AimingLastFrame = false;
+                AimingBox.SetActive(false);
+            }
         }
         else if (AimingLastFrame && (Mathf.Abs(AimingLocation.x) >= .08 || Mathf.Abs(AimingLocation.y) >= .08)) 
         {
             AimingBox.SetActive(false);
             if (canAttack) Attack(AimingLocation);
             AimingLastFrame = false;
+        }
+
+        // Special Attack
+        if (specialStick.IsPressed)
+        {
+            AimingLocation = specialStick.Direction;
+            if (Mathf.Abs(AimingLocation.x) >= .08 || Mathf.Abs(AimingLocation.y) >= .08)
+            {
+                AimingSpecialLastFrame = true;
+                SpecialAimingBox.SetActive(true);
+                AimSpecial(AimingLocation);
+            }
+            else
+            {
+                AimingSpecialLastFrame = false;
+                SpecialAimingBox.SetActive(false);
+            }
+        }
+        else if (AimingSpecialLastFrame && (Mathf.Abs(AimingLocation.x) >= .08 || Mathf.Abs(AimingLocation.y) >= .08)) 
+        {
+            SpecialAimingBox.SetActive(false);
+            SpecialAttack(AimingLocation);
+            AimingSpecialLastFrame = false;
         }
 
         #endregion
@@ -218,20 +254,54 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         double angleInRadians = Math.Atan2(location.y, location.x) - Math.Atan2(normal.y, normal.x);
         float angle = (float) (angleInRadians * (180.0 / Math.PI));
 
-        //Debug.Log("Location: " + location + "     |     " + angle);
+        if (canAttack) AimingBox.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, .2f);
+        else AimingBox.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, .1f);
 
-        if (canAttack) AimingBox.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, (float).25);
-        else AimingBox.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, (float).25);
+        AimingBox.transform.localEulerAngles = new Vector3(0, 0, angle);
+    }
+
+    private void AimSpecial(Vector2 location)
+    {
+        var normal = new Vector2(1, 0);
+        double angleInRadians = Math.Atan2(location.y, location.x) - Math.Atan2(normal.y, normal.x);
+        float angle = (float) (angleInRadians * (180.0 / Math.PI));
+
+        SpecialAimingBox.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, .2f);
 
         AimingBox.transform.localEulerAngles = new Vector3(0, 0, angle);
     }
 
     private void Attack(Vector2 location)
     {        
-        GameObject obj = PhotonNetwork.Instantiate(Ball_PREFAB.name, new Vector2(firePoint.transform.position.x, firePoint.transform.position.y), Quaternion.identity, 0);
+        GameObject obj = PhotonNetwork.Instantiate(Projectile_Prefab.name, new Vector2(firePoint.transform.position.x, firePoint.transform.position.y), Quaternion.identity, 0);
+        obj.GetComponent<BallScript>().ParentObject = this.gameObject;
         obj.GetComponent<PhotonView>().RPC("SetDirection", RpcTarget.AllBuffered, location);   
-
         attackTimer = attackSpeed;
+    }
+
+    private void SpecialAttack(Vector2 location)
+    {   
+        GameObject obj = PhotonNetwork.Instantiate(SpecialProjectile_Prefab.name, new Vector2(firePoint.transform.position.x, firePoint.transform.position.y), Quaternion.identity, 0);
+        obj.GetComponent<BallScript>().ParentObject = this.gameObject;
+        obj.GetComponent<PhotonView>().RPC("SetDirection", RpcTarget.AllBuffered, location);  
+        UpdateSpecialMeter(0);
+    }
+
+    public void UpdateSpecialMeter(float amount)
+    {
+        if (amount == 0) specialMeter.fillAmount = 0f;
+        else specialMeter.fillAmount += amount/100f;
+
+        if (specialMeter.fillAmount >= 1)
+        {
+            SpecialMeterCanvas.SetActive(false);
+            SpecialCanvas.SetActive(true);
+        }
+        else
+        {
+            SpecialMeterCanvas.SetActive(true);
+            SpecialCanvas.SetActive(false);
+        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

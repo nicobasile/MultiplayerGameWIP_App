@@ -10,13 +10,10 @@ public class GameManager : MonoBehaviourPunCallbacks
     public static GameManager Instance;
 
     [Header("General")]
-    public GameObject Player_PREFAB;
-    public GameObject MainCanvas;
+    public GameObject Player_Prefab;
     public GameObject MainCamera;
     public Text TimerText;
     public Text PingText;
-
-    [Space]
 
     [Header("Respawn")]
     public GameObject[] spawnPoints;
@@ -28,7 +25,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     [HideInInspector] public GameObject localPlayer; // Set from playerhealth class
     [HideInInspector] private float maxPing;
     [HideInInspector] private float Timer;
-
 
     private void Awake()
     {
@@ -93,10 +89,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         MainCamera.SetActive(false);
         var index = Random.Range(0, spawnPoints.Length);
-        if (Player_PREFAB == null) Debug.Log("PlayerPrefab???");
-        if (spawnPoints[index] == null) Debug.Log("index");
-
-        PhotonNetwork.Instantiate(Player_PREFAB.name, spawnPoints[index].transform.position, Quaternion.identity, 0);
+        PhotonNetwork.Instantiate(Player_Prefab.name, spawnPoints[index].transform.position, Quaternion.identity, 0);
     }
 
     public void OnClick_LoadLobby()

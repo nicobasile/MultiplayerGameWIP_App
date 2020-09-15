@@ -145,7 +145,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1131813557}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.021, y: -0.233, z: 0}
+  m_LocalPosition: {x: 0, y: -0.233, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8368819631430935572}
@@ -610,18 +610,23 @@ MonoBehaviour:
   Sprite: {fileID: 1895344396844434105}
   PlayerCamera: {fileID: 622623534}
   PlayerNameText: {fileID: 6593845254422565470}
-  Ball_PREFAB: {fileID: 1439261209286031681, guid: eef730ea5c7e04e41ab129f2a1f7e6fb, type: 3}
+  Projectile_Prefab: {fileID: 1439261209286031681, guid: eef730ea5c7e04e41ab129f2a1f7e6fb, type: 3}
+  SpecialProjectile_Prefab: {fileID: 1439261209286031681, guid: eef730ea5c7e04e41ab129f2a1f7e6fb, type: 3}
   AimingBox: {fileID: 8962596219230043845}
+  SpecialAimingBox: {fileID: 8962596219230043845}
   firePoint: {fileID: 1131813558}
   runSpeed: 8
+  groundFriction: 20
   jumpForce: 3
   gravity: -25
-  groundFriction: 20
   airStrafe: 5
   wallCling: 0
-  attackTimer: 0
   DisableInput: 0
   canAttack: 1
+  attackTimer: 0
+  specialMeter: {fileID: 0}
+  SpecialCanvas: {fileID: 0}
+  SpecialMeterCanvas: {fileID: 0}
 --- !u!114 &3279835743406384211
 MonoBehaviour:
   m_ObjectHideFlags: 0
