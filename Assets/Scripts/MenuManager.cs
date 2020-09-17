@@ -27,7 +27,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
 
     [Header("Buttons")]
     [SerializeField] private GameObject CreateAccountButton;
-    [SerializeField] private GameObject LogInButton, SignInButton, SignUpButton;
+    [SerializeField] private GameObject LogInButton, SignInButton, SignUpButton, GameModeButton;
 
     [Header("Input Fields")]
     [SerializeField] private InputField UserNameInput;
@@ -37,6 +37,11 @@ public class MenuManager : MonoBehaviourPunCallbacks
     [SerializeField] private Text profileText;
     [SerializeField] private Text gameModeText, gameModeTypeText, coinsText, bitsText;
     [SerializeField] private Text playersFoundText;
+
+    [Header("Other")]
+    [SerializeField] private Sprite purpleGame;
+    [SerializeField] private Sprite yellowGame, greenGame, blueGame;
+    //[SerializeField] private SpriteRenderer GameModeButtonSprite;
     #pragma warning restore 0649
 
     [HideInInspector] private bool Waiting = false;
@@ -68,11 +73,11 @@ public class MenuManager : MonoBehaviourPunCallbacks
         {
             if (gameModeTypeText.text == "Casual")
             {
-                if (gameModeText.text == "Duel")
+                if (gameModeText.text == "Solo")
                     WaitingRoom(2);
-                else if (gameModeText.text == "TDM")
+                else if (gameModeText.text == "Doubles")
                     WaitingRoom(4);
-                else if (gameModeText.text == "FFA")
+                else if (gameModeText.text == "Free For All")
                     WaitingRoom(8);
             }
             else if (gameModeTypeText.text == "Ranked")
@@ -112,11 +117,11 @@ public class MenuManager : MonoBehaviourPunCallbacks
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         Debug.Log("No random rooms exist, creating room now...");
-        if (gameModeText.text == "Duel")
+        if (gameModeText.text == "Solo")
             CreateCustomRoom(2);
-        else if (gameModeText.text == "TDM")
+        else if (gameModeText.text == "Doubles")
             CreateCustomRoom(4);
-        else if (gameModeText.text == "FFA")
+        else if (gameModeText.text == "Free For All")
             CreateCustomRoom(8);
         base.OnJoinRandomFailed(returnCode, message);
     }
@@ -251,28 +256,35 @@ public class MenuManager : MonoBehaviourPunCallbacks
 
     public void OnClick_ToSettings()
     {
-        LobbyPanel.SetActive(false);
         SettingsPanel.SetActive(true);
     }
 
     public void OnClick_SelectTraining() 
     { 
-        gameModeText.text = "Training"; gameModeTypeText.text = "Practice";
+        gameModeText.text = "Training";
+        gameModeTypeText.text = "Practice";
+        GameModeButton.GetComponent<Image>().sprite = yellowGame;
         OnClick_ToLobby(); 
     }
-    public void OnClick_SelectCasualDuel() 
+    public void OnClick_SelectCasualSolo() 
     { 
-        gameModeText.text = "Duel"; gameModeTypeText.text = "Casual";
+        gameModeText.text = "Solo";
+        gameModeTypeText.text = "Casual";
+        GameModeButton.GetComponent<Image>().sprite = blueGame;
         OnClick_ToLobby(); 
     } 
-    public void OnClick_SelectCasualTDM() 
+    public void OnClick_SelectCasualDoubles() 
     { 
-        gameModeText.text = "TDM"; gameModeTypeText.text = "Casual";
+        gameModeText.text = "Doubles"; 
+        gameModeTypeText.text = "Casual";
+        GameModeButton.GetComponent<Image>().sprite = purpleGame;
         OnClick_ToLobby(); 
     }
     public void OnClick_SelectCasualFFA() 
     { 
-        gameModeText.text = "FFA"; gameModeTypeText.text = "Casual";
+        gameModeText.text = "Free For All"; 
+        gameModeTypeText.text = "Casual";
+        GameModeButton.GetComponent<Image>().sprite = greenGame;
         OnClick_ToLobby(); 
     } 
 
@@ -281,17 +293,17 @@ public class MenuManager : MonoBehaviourPunCallbacks
         LobbyPanel.SetActive(false);
         WaitingPanel.SetActive(true);
 
-        if (gameModeText.text == "Duel")
+        if (gameModeText.text == "Solo")
         {
             playersFoundText.text = "0/2 Players";
             PhotonNetwork.JoinRandomRoom(null, 2, MatchmakingMode.FillRoom, null, null);
         }
-        else if (gameModeText.text == "TDM")
+        else if (gameModeText.text == "Doubles")
         {
             playersFoundText.text = "0/4 Players";
             PhotonNetwork.JoinRandomRoom(null, 4, MatchmakingMode.FillRoom, null, null);
         }
-        else if (gameModeText.text == "FFA")
+        else if (gameModeText.text == "Free For All")
         {
             playersFoundText.text = "0/8 Players";
             PhotonNetwork.JoinRandomRoom(null, 8, MatchmakingMode.FillRoom, null, null);
@@ -345,9 +357,9 @@ public class MenuManager : MonoBehaviourPunCallbacks
             { "Email", EmailInput.text },
             { "Password", PasswordInput.text },
             { "UserId", auth.CurrentUser.UserId },
-            { "Coins", 0},
-            { "Bits", 0},
-            { "Statistics", new Dictionary<string, object>
+            { "Coins", 0 },
+            { "Bits", 0 }
+            /*{ "Statistics", new Dictionary<string, object>
                 {
                     { "Kills", 0 },
                     { "Deaths", 0 },
@@ -358,7 +370,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
                     { "FFA Games", 0 },
                     { "FFA Wins", 0 }
                 }
-            }
+            }*/
         };
         docRef.SetAsync(user).ContinueWithOnMainThread(task => {
             Debug.Log("Added data to the " + EmailInput.text + " document in the users collection.");
@@ -379,8 +391,8 @@ public class MenuManager : MonoBehaviourPunCallbacks
             Dictionary<string, object> userData = snapshot.ToDictionary();
             profileText.text = (String) userData["Username"];
             PhotonNetwork.LocalPlayer.NickName = profileText.text;
-            coinsText.text = "Coins: " + userData["Coins"];
-            bitsText.text = "Bits: " + userData["Bits"];
+            coinsText.text = "" + userData["Coins"];
+            bitsText.text = "" + userData["Bits"];
             OnClick_ToLobby();
         } 
         else Debug.Log(String.Format("Document {0} does not exist!", snapshot.Id));

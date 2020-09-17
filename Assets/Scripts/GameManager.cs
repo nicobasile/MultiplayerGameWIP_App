@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         Timer += Time.deltaTime;
         int minutes = Mathf.FloorToInt(Timer / 60F);
         int seconds = Mathf.FloorToInt(Timer % 60F);
-        TimerText.text = minutes.ToString ("00") + ":" + seconds.ToString ("00");
+        TimerText.text = minutes.ToString ("0") + ":" + seconds.ToString ("00");
         
         if (PhotonNetwork.GetPing() > maxPing) maxPing = PhotonNetwork.GetPing();
         PingText.text = "Ping: " + PhotonNetwork.GetPing() + " (" + maxPing + ")";

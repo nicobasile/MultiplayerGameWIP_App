@@ -113,12 +113,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce0d413301ae145b58470d3c022227b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovingDirection: {x: 0, y: 0}
   MoveSpeed: 6
   Distance: 1
   DestroyTime: 3
   Damage: 25
   ParentObject: {fileID: 0}
+  MovingDirection: {x: 0, y: 0}
 --- !u!114 &-2565926553530465357
 MonoBehaviour:
   m_ObjectHideFlags: 0
