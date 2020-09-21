@@ -24,10 +24,12 @@ public class MenuManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject FriendsPanel, GameModePanel, SettingsPanel;
     [SerializeField] private GameObject LoadingPanel, WaitingPanel, NotImplementedPanel;
     [SerializeField] private GameObject AccountPanel, ProcessPanel, UsernamePanel;
+    [SerializeField] private GameObject AboutPanel;
 
     [Header("Buttons")]
     [SerializeField] private GameObject CreateAccountButton;
-    [SerializeField] private GameObject LogInButton, SignInButton, SignUpButton, GameModeButton;
+    [SerializeField] private GameObject LogInButton, SignInButton, SignUpButton;
+    [SerializeField] private GameObject CharacterSpriteButton, GameModeButton;
 
     [Header("Input Fields")]
     [SerializeField] private InputField UserNameInput;
@@ -41,7 +43,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
     [Header("Other")]
     [SerializeField] private Sprite purpleGame;
     [SerializeField] private Sprite yellowGame, greenGame, blueGame;
-    //[SerializeField] private SpriteRenderer GameModeButtonSprite;
+    [SerializeField] private Sprite SluggerSprite, Sprite2, Sprite3;
     #pragma warning restore 0649
 
     [HideInInspector] private bool Waiting = false;
@@ -147,6 +149,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
         FriendsPanel.SetActive(false);
         GameModePanel.SetActive(false);
         SettingsPanel.SetActive(false);
+        AboutPanel.SetActive(false);
         WaitingPanel.SetActive(false);
     }
 
@@ -250,6 +253,12 @@ public class MenuManager : MonoBehaviourPunCallbacks
         SettingsPanel.SetActive(true);
     }
 
+    public void OnClick_ToAbout()
+    {
+        SettingsPanel.SetActive(false);
+        AboutPanel.SetActive(true);
+    }
+
     public void OnClick_SelectTraining() 
     { 
         gameModeText.text = "Training";
@@ -275,16 +284,19 @@ public class MenuManager : MonoBehaviourPunCallbacks
     public void OnClick_SelectSlugger()
     {
         characterNameText.text = "Slugger";
+        CharacterSpriteButton.GetComponent<Image>().sprite = SluggerSprite;
         OnClick_ToLobby(); 
     }
     public void OnClick_Select2()
     {
-        characterNameText.text = "3";
+        characterNameText.text = "2";
+        CharacterSpriteButton.GetComponent<Image>().sprite = Sprite2;
         OnClick_ToLobby(); 
     }
     public void OnClick_Select3()
     {
         characterNameText.text = "3";
+        CharacterSpriteButton.GetComponent<Image>().sprite = Sprite3;
         OnClick_ToLobby(); 
     }
 
@@ -322,7 +334,6 @@ public class MenuManager : MonoBehaviourPunCallbacks
     {
         StartCoroutine(Wait(3));
     }
-
     IEnumerator Wait(int time)
     {
         NotImplementedPanel.SetActive(true);
