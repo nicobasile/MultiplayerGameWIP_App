@@ -22,7 +22,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject LobbyPanel;
     [SerializeField] private GameObject CharacterSelectPanel, ProfilePanel, ShopPanel;
     [SerializeField] private GameObject FriendsPanel, GameModePanel, SettingsPanel;
-    [SerializeField] private GameObject LoadingPanel, WaitingPanel;
+    [SerializeField] private GameObject LoadingPanel, WaitingPanel, NotImplementedPanel;
     [SerializeField] private GameObject AccountPanel, ProcessPanel, UsernamePanel;
 
     [Header("Buttons")]
@@ -36,7 +36,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
     [Header("Text Fields")]
     [SerializeField] private Text profileText;
     [SerializeField] private Text gameModeText, gameModeTypeText, coinsText, bitsText;
-    [SerializeField] private Text playersFoundText;
+    [SerializeField] private Text playersFoundText, characterNameText;
 
     [Header("Other")]
     [SerializeField] private Sprite purpleGame;
@@ -71,25 +71,12 @@ public class MenuManager : MonoBehaviourPunCallbacks
     {
         if (Waiting)
         {
-            if (gameModeTypeText.text == "Casual")
-            {
                 if (gameModeText.text == "Solo")
                     WaitingRoom(2);
-                else if (gameModeText.text == "Doubles")
+                else if (gameModeText.text == "Quad")
                     WaitingRoom(4);
-                else if (gameModeText.text == "Free For All")
-                    WaitingRoom(8);
-            }
-            else if (gameModeTypeText.text == "Ranked")
-            {
-                // Ranked not implemented yet
-            }
-            else if (gameModeTypeText.text == "Practice")
-            {
-                // Tutorial not implemented yet
-                if (gameModeText.text == "Training")
+                else if (gameModeText.text == "Training")
                     WaitingRoom(1);
-            }
         }
     }
 
@@ -119,10 +106,8 @@ public class MenuManager : MonoBehaviourPunCallbacks
         Debug.Log("No random rooms exist, creating room now...");
         if (gameModeText.text == "Solo")
             CreateCustomRoom(2);
-        else if (gameModeText.text == "Doubles")
+        else if (gameModeText.text == "Quad")
             CreateCustomRoom(4);
-        else if (gameModeText.text == "Free For All")
-            CreateCustomRoom(8);
         base.OnJoinRandomFailed(returnCode, message);
     }
 
@@ -248,6 +233,12 @@ public class MenuManager : MonoBehaviourPunCallbacks
         LobbyPanel.SetActive(true);
     }
 
+    public void OnClick_ToCharacterSelect()
+    {
+        LobbyPanel.SetActive(false);
+        CharacterSelectPanel.SetActive(true); 
+    }
+
     public void OnClick_ToGameModeSelect()
     {
         LobbyPanel.SetActive(false);
@@ -273,20 +264,29 @@ public class MenuManager : MonoBehaviourPunCallbacks
         GameModeButton.GetComponent<Image>().sprite = blueGame;
         OnClick_ToLobby(); 
     } 
-    public void OnClick_SelectCasualDoubles() 
+    public void OnClick_SelectCasualQuad() 
     { 
-        gameModeText.text = "Doubles"; 
-        gameModeTypeText.text = "Casual";
-        GameModeButton.GetComponent<Image>().sprite = purpleGame;
-        OnClick_ToLobby(); 
-    }
-    public void OnClick_SelectCasualFFA() 
-    { 
-        gameModeText.text = "Free For All"; 
+        gameModeText.text = "Quad"; 
         gameModeTypeText.text = "Casual";
         GameModeButton.GetComponent<Image>().sprite = greenGame;
         OnClick_ToLobby(); 
-    } 
+    }
+
+    public void OnClick_SelectSlugger()
+    {
+        characterNameText.text = "Slugger";
+        OnClick_ToLobby(); 
+    }
+    public void OnClick_Select2()
+    {
+        characterNameText.text = "3";
+        OnClick_ToLobby(); 
+    }
+    public void OnClick_Select3()
+    {
+        characterNameText.text = "3";
+        OnClick_ToLobby(); 
+    }
 
     public void OnClick_ReadyUp()
     {
@@ -298,15 +298,10 @@ public class MenuManager : MonoBehaviourPunCallbacks
             playersFoundText.text = "0/2 Players";
             PhotonNetwork.JoinRandomRoom(null, 2, MatchmakingMode.FillRoom, null, null);
         }
-        else if (gameModeText.text == "Doubles")
+        else if (gameModeText.text == "Quad")
         {
             playersFoundText.text = "0/4 Players";
             PhotonNetwork.JoinRandomRoom(null, 4, MatchmakingMode.FillRoom, null, null);
-        }
-        else if (gameModeText.text == "Free For All")
-        {
-            playersFoundText.text = "0/8 Players";
-            PhotonNetwork.JoinRandomRoom(null, 8, MatchmakingMode.FillRoom, null, null);
         }
         else if (gameModeText.text == "Training")
         {
@@ -321,6 +316,18 @@ public class MenuManager : MonoBehaviourPunCallbacks
         Waiting = false;
         PhotonNetwork.LeaveRoom();
         OnClick_ToLobby();
+    }
+
+    public void OnClick_NotImplemented()
+    {
+        StartCoroutine(Wait(3));
+    }
+
+    IEnumerator Wait(int time)
+    {
+        NotImplementedPanel.SetActive(true);
+        yield return new WaitForSeconds(time);
+        NotImplementedPanel.SetActive(false);
     }
 
     private void WaitingRoom(int maxPlayers)
@@ -485,14 +492,6 @@ public class MenuManager : MonoBehaviourPunCallbacks
             }  
         }  
     } 
-
-    /*public void OnChange_UserNameInput()
-    {
-        if (UserNameInput.text.Length >= 2)
-            SignInButton.SetActive(true);
-        else
-            SignInButton.SetActive(false);
-    }*/
 
     #endregion
 }

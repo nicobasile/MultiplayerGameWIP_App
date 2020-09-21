@@ -48,13 +48,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         int seconds = Mathf.FloorToInt(Timer % 60F);
         TimerText.text = minutes.ToString ("0") + ":" + seconds.ToString ("00");
         
-        if (PhotonNetwork.GetPing() > maxPing) maxPing = PhotonNetwork.GetPing();
-        PingText.text = "Ping: " + PhotonNetwork.GetPing() + " (" + maxPing + ")";
+        PingText.text = "Ping: " + PhotonNetwork.GetPing();
 
-        if (RespawnTimerActive)
-        {
-            StartRespawn();
-        }
+        if (RespawnTimerActive) StartRespawn();
     }
 
     public void EnableRespawn()
