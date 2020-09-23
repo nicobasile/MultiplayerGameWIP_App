@@ -6,33 +6,34 @@ using Photon.Pun;
 
 public class BallScript : MonoBehaviourPunCallbacks
 {
-    public float MoveSpeed = 6f;
-    public float Distance = 1f;
-    public float DestroyTime = 3f;
-    public float Damage = 25f;
+    public float MoveSpeed = 8f;
+    public float DestroyTime = 6f;
+    public float Damage = 50f;
 
     [HideInInspector] public GameObject ParentObject;
     [HideInInspector] public Vector2 MovingDirection;
+    [HideInInspector] private Vector3 rotation;
+
 
     private void Awake()
     {
         StartCoroutine("DestroyByTime");
         MovingDirection = new Vector2(1,1);
+        rotation = new Vector3(0, 0, 1f);
     }
 
     [PunRPC]
     public void SetDirection(Vector2 direction) 
     {
         var Mag = Math.Sqrt(direction.x * direction.x + direction.y * direction.y);
-        MovingDirection = new Vector2((float)(direction.x * Distance / Mag), (float)(direction.y * Distance / Mag));
+        MovingDirection = new Vector2((float)(direction.x / Mag), (float)(direction.y / Mag));
     }
 
     private void Update()
     {
         var move = new Vector3(MovingDirection.x, MovingDirection.y, 0);
         transform.position += move * MoveSpeed * Time.deltaTime;
-        //transform.position += move * runSpeed * Time.deltaTime;
-        //transform.Translate(MovingDirection * MoveSpeed * Time.deltaTime);
+        this.transform.Rotate(rotation);
     }
 
     [PunRPC]
@@ -65,22 +66,17 @@ public class BallScript : MonoBehaviourPunCallbacks
         if (target == null)
         {
             this.GetComponent<PhotonView>().RPC("Bounce", RpcTarget.AllBuffered, collision.ClosestPoint(this.gameObject.transform.position));
-            ParentObject.GetComponent<Player>().UpdateSpecialMeter(Damage);
+            ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(34f);
         }
         else if (target != null && (!target.IsMine || target.IsSceneView))
         {
             if (collision.tag == "Player")
             {
                 target.RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
-                //ParentObject.GetComponent<Player>().UpdateSpecialMeter(Damage);
+                ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(34f);
             }
             this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);
         }
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        Debug.Log("Collision: " + collision.gameObject.tag); 
     }
 
     IEnumerator DestroyByTime()
@@ -88,5 +84,4 @@ public class BallScript : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(DestroyTime);
         this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);
     }
-
 }

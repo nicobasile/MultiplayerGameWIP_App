@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     public static GameManager Instance;
 
     [Header("General")]
-    public GameObject Player_Prefab;
     public GameObject MainCamera;
     public Text TimerText;
     public Text PingText;
@@ -25,11 +24,13 @@ public class GameManager : MonoBehaviourPunCallbacks
     [HideInInspector] public GameObject localPlayer; // Set from playerhealth class
     [HideInInspector] private float maxPing;
     [HideInInspector] private float Timer;
+    [HideInInspector] public string CharacterSelected;
 
     private void Awake()
     {
         Instance = this;
         spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
+        CharacterSelected = PlayerPrefs.GetString("CharacterSelected");
 
         PhotonNetwork.SendRate = 40; // Default is 20
         PhotonNetwork.SerializationRate = 30; // Default is 10
@@ -85,7 +86,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         MainCamera.SetActive(false);
         var index = Random.Range(0, spawnPoints.Length);
-        PhotonNetwork.Instantiate(Player_Prefab.name, spawnPoints[index].transform.position, Quaternion.identity, 0);
+
+        PhotonNetwork.Instantiate(CharacterSelected, spawnPoints[index].transform.position, Quaternion.identity, 0);
     }
 
     public void OnClick_LoadLobby()

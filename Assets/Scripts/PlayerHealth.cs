@@ -9,7 +9,7 @@ public class PlayerHealth : MonoBehaviourPunCallbacks
     public float HealthAmount = 100;
     public Image BarImage;
 
-    public Player plMove;
+    //public Player plMove;
     public Rigidbody2D Rigid; 
     public BoxCollider2D Collider;
     public SpriteRenderer Sprite;
@@ -41,7 +41,7 @@ public class PlayerHealth : MonoBehaviourPunCallbacks
         if (photonView.IsMine && HealthAmount <= 0)
         {
             GameManager.Instance.EnableRespawn();
-            plMove.DisableInput = true;
+            //plMove.DisableInput = true;
             this.GetComponent<PhotonView>().RPC("Death", RpcTarget.AllBuffered);
         }
     }
@@ -82,6 +82,6 @@ public class PlayerHealth : MonoBehaviourPunCallbacks
 
     public void EnableInput()
     {
-        plMove.DisableInput = false;
+        //plMove.DisableInput = false;
     }
 }

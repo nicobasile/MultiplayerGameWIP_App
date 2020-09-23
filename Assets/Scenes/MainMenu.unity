@@ -1685,7 +1685,7 @@ GameObject:
   - component: {fileID: 290704242}
   - component: {fileID: 290704241}
   m_Layer: 5
-  m_Name: Button - 2
+  m_Name: Button - Shinobi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1710,7 +1710,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 7}
+  m_AnchoredPosition: {x: 200, y: 7}
   m_SizeDelta: {x: 150, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &290704241
@@ -1773,7 +1773,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 990038686}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: OnClick_Select2
+        m_MethodName: OnClick_SelectShinobi
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5443,7 +5443,7 @@ MonoBehaviour:
   LogInButton: {fileID: 2129172630}
   SignInButton: {fileID: 31128891}
   SignUpButton: {fileID: 847796199}
-  CharacterSprite: {fileID: 1276347527}
+  CharacterSpriteButton: {fileID: 1276347527}
   GameModeButton: {fileID: 155897834}
   UserNameInput: {fileID: 2093491696}
   EmailInput: {fileID: 1482900138}
@@ -5460,8 +5460,8 @@ MonoBehaviour:
   greenGame: {fileID: 21300000, guid: c69ba4faa9c6b4e509aae42eb21864b6, type: 3}
   blueGame: {fileID: 21300000, guid: 7ae10a52858b64a15b505402bcf56a12, type: 3}
   SluggerSprite: {fileID: 8359362829384877299, guid: 8049e159a1b2246b388975b0924b2173, type: 3}
-  Sprite2: {fileID: -775478308929540736, guid: 8049e159a1b2246b388975b0924b2173, type: 3}
-  Sprite3: {fileID: 21300000, guid: d4dbcb1d8062c440996e5d9e71a2eba7, type: 3}
+  ShinobiSprite: {fileID: 21300000, guid: e4883590f465e4806aafc14e8b6a689c, type: 3}
+  ZealotSprite: {fileID: 21300000, guid: d4dbcb1d8062c440996e5d9e71a2eba7, type: 3}
 --- !u!4 &990038687
 Transform:
   m_ObjectHideFlags: 0
@@ -6340,7 +6340,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Slugger
+  m_Text: Zealot
 --- !u!222 &1160419541
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6883,7 +6883,7 @@ GameObject:
   - component: {fileID: 1276347529}
   - component: {fileID: 1276347531}
   m_Layer: 5
-  m_Name: CharacterSprite
+  m_Name: Button - CharacterSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8807,7 +8807,7 @@ GameObject:
   - component: {fileID: 1480037022}
   - component: {fileID: 1480037021}
   m_Layer: 5
-  m_Name: Button - 3
+  m_Name: Button - Zealot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8832,7 +8832,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 200, y: 7}
+  m_AnchoredPosition: {x: 0, y: 7}
   m_SizeDelta: {x: 150, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1480037021
@@ -8895,7 +8895,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 990038686}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: OnClick_Select3
+        m_MethodName: OnClick_SelectZealot
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -12105,7 +12105,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Slugger
+  m_Text: Shinobi
 --- !u!222 &1945839876
 CanvasRenderer:
   m_ObjectHideFlags: 0

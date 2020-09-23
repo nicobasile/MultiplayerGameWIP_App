@@ -43,7 +43,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
     [Header("Other")]
     [SerializeField] private Sprite purpleGame;
     [SerializeField] private Sprite yellowGame, greenGame, blueGame;
-    [SerializeField] private Sprite SluggerSprite, Sprite2, Sprite3;
+    [SerializeField] private Sprite SluggerSprite, ShinobiSprite, ZealotSprite;
     #pragma warning restore 0649
 
     [HideInInspector] private bool Waiting = false;
@@ -122,6 +122,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
 
     public void LoadArena(string LevelName)
     {
+        PlayerPrefs.SetString("CharacterSelected", characterNameText.text);
         PhotonNetwork.LoadLevel(LevelName);
         Debug.Log("Joined " + LevelName);
     }
@@ -287,16 +288,16 @@ public class MenuManager : MonoBehaviourPunCallbacks
         CharacterSpriteButton.GetComponent<Image>().sprite = SluggerSprite;
         OnClick_ToLobby(); 
     }
-    public void OnClick_Select2()
+    public void OnClick_SelectShinobi()
     {
-        characterNameText.text = "2";
-        CharacterSpriteButton.GetComponent<Image>().sprite = Sprite2;
+        characterNameText.text = "Shinobi";
+        CharacterSpriteButton.GetComponent<Image>().sprite = ShinobiSprite;
         OnClick_ToLobby(); 
     }
-    public void OnClick_Select3()
+    public void OnClick_SelectZealot()
     {
-        characterNameText.text = "3";
-        CharacterSpriteButton.GetComponent<Image>().sprite = Sprite3;
+        characterNameText.text = "Zealot";
+        CharacterSpriteButton.GetComponent<Image>().sprite = ZealotSprite;
         OnClick_ToLobby(); 
     }
 

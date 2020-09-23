@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Photon.Pun;
 using ObjectController;
 
-public class Player : MonoBehaviourPunCallbacks, IPunObservable
+public class ShinobiController : MonoBehaviourPunCallbacks, IPunObservable
 {
     [Header("General")]
     public new PhotonView photonView;
@@ -23,18 +23,21 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     [Space]
 
     [Header("Floats and Ints")]
-    public float runSpeed = 8f;
+    public float runSpeed = 6f;
     public float groundFriction = 20f;
     public float jumpForce = 3f;
 
-    public float gravity = -25f;
-    public float airStrafe = 5f;
+    public float gravity = -20f;
+    public float airStrafe = 10f;
     public float wallCling = 0f;
 
-    public static float attackSpeed = 2f;
+    public float dashDistance = 3f;
+    public static float attackSpeed = 1f;
 
     [HideInInspector] public bool DisableInput = false;
     [HideInInspector] public bool canAttack = true;
+    [HideInInspector] public bool canFloat = false;
+    [HideInInspector] public bool justDashed = false;
 
     private float normalizedHorizontalSpeed = 0;
     private GeneralController _object;
@@ -47,6 +50,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
 	protected Joybutton jumpButton;
 
     [HideInInspector] public float attackTimer;
+    [HideInInspector] public float floatTimer;
+    [HideInInspector] public float floatLength;
     [HideInInspector] public Image specialMeter;
     [HideInInspector] public GameObject SpecialCanvas;
     [HideInInspector] public GameObject SpecialMeterCanvas;
@@ -110,8 +115,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     {
         #region Gravity
 
-        if(_object.isGrounded) _velocity.y = 0;
-        _velocity.y += gravity * Time.deltaTime;
+        if(_object.isGrounded)
+        {
+            _velocity.y = 0;
+            canFloat = false; //
+            floatLength = 1f; //
+        }
+
+        if (!justDashed) _velocity.y += gravity * Time.deltaTime;
 
         #endregion
 
@@ -153,11 +164,32 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         {
             _velocity.y = Mathf.Sqrt( 2f * jumpForce * -gravity );
             //_animator.Play( Animator.StringToHash( "Jump" ) );
+
+            floatTimer = .5f;
+        }
+
+        if(!_object.isGrounded)
+        {
+            if (floatTimer < 0 && floatLength > 0)
+                canFloat = true;
+            else
+                floatTimer -= Time.deltaTime;
+        }
+
+        if (canFloat && (jumpButton.pressed || Input.GetKey(KeyCode.Space))) // Floating
+        {
+            _velocity.y = 0;
+            if (floatLength < 0)
+                canFloat = false;
+            else
+                floatLength -= Time.deltaTime;
         }
 
         if(_object.collisionState.right)
         {
             _velocity.y = wallCling; 
+            canFloat = false;
+            floatLength = 0f;
             if (jumpButton.pressed || Input.GetKey(KeyCode.Space)) //Input.GetKeyDown(KeyCode.UpArrow))
             {
                 _velocity.y = Mathf.Sqrt(2f * jumpForce * -gravity);
@@ -169,6 +201,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         if(_object.collisionState.left)
         {
             _velocity.y = wallCling; 
+            canFloat = false;
+            floatLength = 0f;
             if (jumpButton.pressed || Input.GetKey(KeyCode.Space)) //Input.GetKeyDown(KeyCode.UpArrow))
             {
                 _velocity.y = Mathf.Sqrt(2f * jumpForce * -gravity);
@@ -178,10 +212,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         #endregion
-
-        // Apply calculated velocity to player
-        _object.move(_velocity * Time.deltaTime);
-        _velocity = _object.velocity; // Update calculated object velocity
 
         #region Attacking
 
@@ -240,6 +270,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         #endregion
+
+        // Apply calculated velocity to player
+        _object.move(_velocity * Time.deltaTime);
+        _velocity = _object.velocity; // Update calculated object velocity
     }
 
     [PunRPC]
@@ -266,15 +300,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
         double angleInRadians = Math.Atan2(location.y, location.x) - Math.Atan2(normal.y, normal.x);
         float angle = (float) (angleInRadians * (180.0 / Math.PI));
 
-        SpecialAimingBox.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, .2f);
-
-        AimingBox.transform.localEulerAngles = new Vector3(0, 0, angle);
+        SpecialAimingBox.transform.localEulerAngles = new Vector3(0, 0, angle);
     }
 
     private void Attack(Vector2 location)
     {        
         GameObject obj = PhotonNetwork.Instantiate(Projectile_Prefab.name, new Vector2(firePoint.transform.position.x, firePoint.transform.position.y), Quaternion.identity, 0);
-        obj.GetComponent<BallScript>().ParentObject = this.gameObject;
+        obj.GetComponent<NinjaStarScript>().ParentObject = this.gameObject;
         obj.GetComponent<PhotonView>().RPC("SetDirection", RpcTarget.AllBuffered, location);   
         attackTimer = attackSpeed;
     }
@@ -282,8 +314,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunObservable
     private void SpecialAttack(Vector2 location)
     {   
         GameObject obj = PhotonNetwork.Instantiate(SpecialProjectile_Prefab.name, new Vector2(firePoint.transform.position.x, firePoint.transform.position.y), Quaternion.identity, 0);
-        obj.GetComponent<BallScript>().ParentObject = this.gameObject;
-        obj.GetComponent<PhotonView>().RPC("SetDirection", RpcTarget.AllBuffered, location);  
+        obj.GetComponent<BombScript>().ParentObject = this.gameObject;
+        obj.GetComponent<PhotonView>().RPC("SetDirection", RpcTarget.AllBuffered, location); 
         UpdateSpecialMeter(0);
     }
 
