@@ -21,7 +21,7 @@ public class BombScript : MonoBehaviourPunCallbacks
     {
         StartCoroutine("DestroyByTime");
         MovingDirection = new Vector2(1,1);
-        rotation = new Vector3(0, 0, .5f);
+        rotation = new Vector3(0, 0, 2f);
     }
 
     [PunRPC]

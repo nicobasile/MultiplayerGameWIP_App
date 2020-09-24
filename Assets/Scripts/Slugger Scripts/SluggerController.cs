@@ -52,7 +52,7 @@ public class SluggerController : MonoBehaviourPunCallbacks, IPunObservable
     [HideInInspector] public GameObject SpecialMeterCanvas;
 
     protected PlayerCameraController cameraController;
-    protected float cameraOffset = 1f;
+    protected float cameraOffset = 0f;
 
     private bool AimingLastFrame = false;
     private bool AimingSpecialLastFrame = false;

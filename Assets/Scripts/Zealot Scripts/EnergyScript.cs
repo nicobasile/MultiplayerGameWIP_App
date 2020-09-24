@@ -22,13 +22,19 @@ public class EnergyScript : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SetDirection(Vector2 direction, int changeAngle) 
     {
-        if (changeAngle == 2) 
+        if (direction.y > .1)
         {
-            direction.x += .2f;
+            if (changeAngle == 2) 
+                direction.x += .2f;
+            else if (changeAngle == 3) 
+                direction.x -= .2f;
         }
-        else if (changeAngle == 3) 
+        else
         {
-            direction.x -= .2f;
+            if (changeAngle == 2) 
+                direction.y += .2f;
+            else if (changeAngle == 3) 
+                direction.y -= .2f;
         }
 
         var normal = new Vector2(1, 0);
@@ -65,14 +71,21 @@ public class EnergyScript : MonoBehaviourPunCallbacks
 
         if (target == null)
         {
-            this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered); 
+            this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);
+            //if (!ParentObject.GetComponent<ZealotController>().inSpecialMode)
+            //    ParentObject.GetComponent<ZealotController>().UpdateSpecialMeter(25f); 
         }
         else if (target != null && (!target.IsMine || target.IsSceneView))
         {
             if (collision.tag == "Player")
             {
                 target.RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
-                ParentObject.GetComponent<ZealotController>().UpdateSpecialMeter(10f);
+                
+                if (!ParentObject.GetComponent<ZealotController>().inSpecialMode)
+                    ParentObject.GetComponent<ZealotController>().UpdateSpecialMeter(25f);
+
+                if (target.GetComponent<PlayerHealth>().CurrentHealth <= 0)
+                    ParentObject.GetComponent<PlayerHealth>().YouEliminated("");
             }
             this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);
         }

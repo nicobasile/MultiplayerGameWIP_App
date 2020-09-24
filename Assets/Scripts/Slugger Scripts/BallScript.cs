@@ -66,14 +66,17 @@ public class BallScript : MonoBehaviourPunCallbacks
         if (target == null)
         {
             this.GetComponent<PhotonView>().RPC("Bounce", RpcTarget.AllBuffered, collision.ClosestPoint(this.gameObject.transform.position));
-            ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(34f);
+            //ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(Damage);
         }
         else if (target != null && (!target.IsMine || target.IsSceneView))
         {
             if (collision.tag == "Player")
             {
                 target.RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
-                ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(34f);
+                ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(Damage);
+
+                if (target.GetComponent<PlayerHealth>().CurrentHealth <= 0)
+                    ParentObject.GetComponent<PlayerHealth>().YouEliminated("");
             }
             this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);
         }

@@ -286,18 +286,21 @@ public class MenuManager : MonoBehaviourPunCallbacks
     {
         characterNameText.text = "Slugger";
         CharacterSpriteButton.GetComponent<Image>().sprite = SluggerSprite;
+        CharacterSpriteButton.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(100, 100);
         OnClick_ToLobby(); 
     }
     public void OnClick_SelectShinobi()
     {
         characterNameText.text = "Shinobi";
         CharacterSpriteButton.GetComponent<Image>().sprite = ShinobiSprite;
+        CharacterSpriteButton.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(110, 100);
         OnClick_ToLobby(); 
     }
     public void OnClick_SelectZealot()
     {
         characterNameText.text = "Zealot";
         CharacterSpriteButton.GetComponent<Image>().sprite = ZealotSprite;
+        CharacterSpriteButton.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(100, 100);
         OnClick_ToLobby(); 
     }
 
@@ -308,16 +311,19 @@ public class MenuManager : MonoBehaviourPunCallbacks
 
         if (gameModeText.text == "Solo")
         {
+            PlayerPrefs.SetString("MatchLength", "180");
             playersFoundText.text = "0/2 Players";
             PhotonNetwork.JoinRandomRoom(null, 2, MatchmakingMode.FillRoom, null, null);
         }
         else if (gameModeText.text == "Quad")
         {
+            PlayerPrefs.SetString("MatchLength", "300");
             playersFoundText.text = "0/4 Players";
             PhotonNetwork.JoinRandomRoom(null, 4, MatchmakingMode.FillRoom, null, null);
         }
         else if (gameModeText.text == "Training")
         {
+            PlayerPrefs.SetString("MatchLength", "480");
             playersFoundText.text = "0/1 Players";
             CreateCustomRoom(1);
         }
@@ -350,11 +356,17 @@ public class MenuManager : MonoBehaviourPunCallbacks
             Waiting = false;
             WaitingPanel.SetActive(false);
             if (maxPlayers == 1)
-                LoadArena("TrainingLevel");
+            {
+                LoadArena("SoloLevel");
+            }
             else if (maxPlayers == 2)
-                LoadArena("FirstLevel");
+            {
+                LoadArena("SoloLevel");
+            }
             else
-                LoadArena("SecondLevel");
+            {
+                LoadArena("QuadLevel");
+            }
         }
     }
 
@@ -376,8 +388,8 @@ public class MenuManager : MonoBehaviourPunCallbacks
             { "Email", EmailInput.text },
             { "Password", PasswordInput.text },
             { "UserId", auth.CurrentUser.UserId },
-            { "Coins", 0 },
-            { "Bits", 0 }
+            { "Coins", 100 },
+            { "Bits", 10 }
             /*{ "Statistics", new Dictionary<string, object>
                 {
                     { "Kills", 0 },
@@ -442,6 +454,9 @@ public class MenuManager : MonoBehaviourPunCallbacks
             PasswordInput.text = DecryptString(key, reader.ReadLine());
             reader.Close();
 
+            if (EmailInput.text == "" || PasswordInput.text == "") 
+                return false;
+
             OnClick_SignIn();
             return true;
         }
@@ -483,8 +498,16 @@ public class MenuManager : MonoBehaviourPunCallbacks
 
     private static string DecryptString(string key, string cipherText)  
     {  
-        byte[] iv = new byte[16];  
-        byte[] buffer = Convert.FromBase64String(cipherText);  
+        byte[] iv = new byte[16]; 
+        byte[] buffer;
+        try 
+        { 
+            buffer = Convert.FromBase64String(cipherText); 
+        } 
+        catch (ArgumentNullException e)
+        {
+            return "";
+        }
 
         using (Aes aes = Aes.Create())  
         {  

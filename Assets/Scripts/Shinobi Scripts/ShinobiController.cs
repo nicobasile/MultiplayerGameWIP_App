@@ -37,7 +37,6 @@ public class ShinobiController : MonoBehaviourPunCallbacks, IPunObservable
     [HideInInspector] public bool DisableInput = false;
     [HideInInspector] public bool canAttack = true;
     [HideInInspector] public bool canFloat = false;
-    [HideInInspector] public bool justDashed = false;
 
     private float normalizedHorizontalSpeed = 0;
     private GeneralController _object;
@@ -57,7 +56,7 @@ public class ShinobiController : MonoBehaviourPunCallbacks, IPunObservable
     [HideInInspector] public GameObject SpecialMeterCanvas;
 
     protected PlayerCameraController cameraController;
-    protected float cameraOffset = 1f;
+    protected float cameraOffset = 0f;
 
     private bool AimingLastFrame = false;
     private bool AimingSpecialLastFrame = false;
@@ -122,7 +121,7 @@ public class ShinobiController : MonoBehaviourPunCallbacks, IPunObservable
             floatLength = 1f; //
         }
 
-        if (!justDashed) _velocity.y += gravity * Time.deltaTime;
+        _velocity.y += gravity * Time.deltaTime;
 
         #endregion
 

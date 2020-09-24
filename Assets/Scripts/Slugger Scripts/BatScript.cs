@@ -27,7 +27,7 @@ public class BatScript : MonoBehaviourPunCallbacks
 
         if (target == null)
         {
-            ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(Damage);
+            //ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(Damage);
         }
         else if (target != null && (!target.IsMine || target.IsSceneView))
         {
@@ -35,6 +35,9 @@ public class BatScript : MonoBehaviourPunCallbacks
             {
                 target.RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
                 ParentObject.GetComponent<SluggerController>().UpdateSpecialMeter(Damage);
+
+                if (target.GetComponent<PlayerHealth>().CurrentHealth <= 0)
+                    ParentObject.GetComponent<PlayerHealth>().YouEliminated("");
             }
         }
     }

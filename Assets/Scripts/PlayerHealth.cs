@@ -6,7 +6,9 @@ using Photon.Pun;
 
 public class PlayerHealth : MonoBehaviourPunCallbacks
 {
-    public float HealthAmount = 100;
+    public float MaxHealth = 150f;
+    [HideInInspector] public float CurrentHealth;
+    public Text CurrentHealthText;
     public Image BarImage;
 
     //public Player plMove;
@@ -14,9 +16,12 @@ public class PlayerHealth : MonoBehaviourPunCallbacks
     public BoxCollider2D Collider;
     public SpriteRenderer Sprite;
     public GameObject PlayerCanvas;
+    [HideInInspector] public int Eliminations = 0;
 
     void Awake()
     {
+        CurrentHealth = MaxHealth;
+        CurrentHealthText.text = CurrentHealth.ToString();
         if (photonView.IsMine)
         {
             GameManager.Instance.localPlayer = this.gameObject;
@@ -31,14 +36,16 @@ public class PlayerHealth : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ReduceHealth(float amount)
     {
+        Debug.Log("OUCH: " + amount);
         ModifyHealth(amount);
     }
 
     public void CheckHealth()
     {
-        BarImage.fillAmount = HealthAmount / 100f;
+        CurrentHealthText.text = CurrentHealth.ToString();
+        BarImage.fillAmount = CurrentHealth / MaxHealth;
 
-        if (photonView.IsMine && HealthAmount <= 0)
+        if (photonView.IsMine && CurrentHealth <= 0)
         {
             GameManager.Instance.EnableRespawn();
             //plMove.DisableInput = true;
@@ -50,11 +57,11 @@ public class PlayerHealth : MonoBehaviourPunCallbacks
     {
         if (photonView.IsMine)
         {
-            HealthAmount -= amount;
+            CurrentHealth -= amount;
         }
         else
         {
-            HealthAmount -= amount;
+            CurrentHealth -= amount;
         }
 
         CheckHealth();
@@ -69,10 +76,15 @@ public class PlayerHealth : MonoBehaviourPunCallbacks
         PlayerCanvas.SetActive(false);
     }
 
+    public void YouEliminated(string name)
+    {
+        Eliminations++;
+    }
+
     [PunRPC]
     private void Revive()
     {
-        HealthAmount = 100;
+        CurrentHealth = MaxHealth;
         CheckHealth();
         Rigid.gravityScale = 1;
         Collider.enabled = true;

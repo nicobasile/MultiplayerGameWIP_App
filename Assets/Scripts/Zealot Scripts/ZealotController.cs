@@ -56,7 +56,7 @@ public class ZealotController : MonoBehaviourPunCallbacks, IPunObservable
     [HideInInspector] public GameObject SpecialMeterCanvas;
 
     protected PlayerCameraController cameraController;
-    protected float cameraOffset = 1f;
+    protected float cameraOffset = 0f;
 
     private bool AimingLastFrame = false;
     private bool AimingSpecialLastFrame = false;
@@ -334,7 +334,6 @@ public class ZealotController : MonoBehaviourPunCallbacks, IPunObservable
             obj3.GetComponent<PhotonView>().RPC("SetDirection", RpcTarget.AllBuffered, location, 3);  
         } 
         attackTimer = attackSpeed;
-        UpdateSpecialMeter(34);
     }
 
     private void SpecialAttack(Vector2 location)

@@ -18,7 +18,7 @@ public class NinjaStarScript : MonoBehaviourPunCallbacks
     {
         StartCoroutine("DestroyByTime");
         MovingDirection = new Vector2(1,1);
-        rotation = new Vector3(0, 0, 1f);
+        rotation = new Vector3(0, 0, -3f);
     }
 
     [PunRPC]
@@ -52,8 +52,10 @@ public class NinjaStarScript : MonoBehaviourPunCallbacks
 
         if (target == null)
         {
-            this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);    
-            ParentObject.GetComponent<ShinobiController>().UpdateSpecialMeter(25f);
+            this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered); 
+            //ParentObject.GetComponent<PhotonView>().RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
+            //ParentObject.GetComponent<PlayerHealth>().YouEliminated("");   
+            //ParentObject.GetComponent<ShinobiController>().UpdateSpecialMeter(25f);
         }
         else if (target != null && (!target.IsMine || target.IsSceneView))
         {
@@ -61,6 +63,9 @@ public class NinjaStarScript : MonoBehaviourPunCallbacks
             {
                 target.RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
                 ParentObject.GetComponent<ShinobiController>().UpdateSpecialMeter(25f);
+
+                if (target.GetComponent<PlayerHealth>().CurrentHealth <= 0)
+                    ParentObject.GetComponent<PlayerHealth>().YouEliminated("");
             }
             this.GetComponent<PhotonView>().RPC("DestroyOBJ", RpcTarget.AllBuffered);
         }

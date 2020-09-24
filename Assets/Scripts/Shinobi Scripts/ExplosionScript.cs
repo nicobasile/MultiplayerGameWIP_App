@@ -27,7 +27,10 @@ public class ExplosionScript : MonoBehaviourPunCallbacks
             if (collision.tag == "Player")
             {
                 target.RPC("ReduceHealth", RpcTarget.AllBuffered, Damage);
-                //ParentObject.GetComponent<ShinobiController>().UpdateSpecialMeter(Damage);
+                ParentObject.GetComponent<ShinobiController>().UpdateSpecialMeter(25f);
+
+                if (target.GetComponent<PlayerHealth>().CurrentHealth <= 0)
+                    ParentObject.GetComponent<PlayerHealth>().YouEliminated("");
             }
         }
     }
