@@ -11,7 +11,7 @@
       }, 
       "oauth_client": [
         {
-          "client_id": "962777670864-k78g677jp0ufluoc2g798die3jsr5d3g.apps.googleusercontent.com"
+          "client_id": "962777670864-1sfag4fh53kpa8cvscgtm2bk65ds9a7a.apps.googleusercontent.com"
         }
       ], 
       "api_key": [
@@ -20,9 +20,9 @@
         }
       ], 
       "client_info": {
-        "mobilesdk_app_id": "1:962777670864:ios:4574ac6dd0ca6000b8aad5", 
+        "mobilesdk_app_id": "1:962777670864:ios:83e9fa3553996b4ab8aad5", 
         "android_client_info": {
-          "package_name": "com.nicolasbasile.WIPGame"
+          "package_name": "com.nicolasbasile.ZealotStrike"
         }
       }
     }

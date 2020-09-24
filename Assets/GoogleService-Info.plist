@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>962777670864-k78g677jp0ufluoc2g798die3jsr5d3g.apps.googleusercontent.com</string>
+	<string>962777670864-1sfag4fh53kpa8cvscgtm2bk65ds9a7a.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.962777670864-k78g677jp0ufluoc2g798die3jsr5d3g</string>
+	<string>com.googleusercontent.apps.962777670864-1sfag4fh53kpa8cvscgtm2bk65ds9a7a</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCifOm6v9-b9pn7HRFMcQ4ay2qvLsogy5U</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.nicolasbasile.WIPGame</string>
+	<string>com.nicolasbasile.ZealotStrike</string>
 	<key>PROJECT_ID</key>
 	<string>wipgame-ba361</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +29,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:962777670864:ios:4574ac6dd0ca6000b8aad5</string>
+	<string>1:962777670864:ios:83e9fa3553996b4ab8aad5</string>
 	<key>DATABASE_URL</key>
 	<string>https://wipgame-ba361.firebaseio.com</string>
 </dict>

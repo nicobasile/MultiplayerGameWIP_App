@@ -93,6 +93,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
+        PlayerPrefs.SetString("CharacterSelected", "Slugger");
         if (LoadLogin() == false)
         {
             Debug.Log("No previous save data found");
@@ -122,7 +123,6 @@ public class MenuManager : MonoBehaviourPunCallbacks
 
     public void LoadArena(string LevelName)
     {
-        PlayerPrefs.SetString("CharacterSelected", characterNameText.text);
         PhotonNetwork.LoadLevel(LevelName);
         Debug.Log("Joined " + LevelName);
     }
@@ -285,6 +285,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
     public void OnClick_SelectSlugger()
     {
         characterNameText.text = "Slugger";
+        PlayerPrefs.SetString("CharacterSelected", "Slugger");
         CharacterSpriteButton.GetComponent<Image>().sprite = SluggerSprite;
         CharacterSpriteButton.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(100, 100);
         OnClick_ToLobby(); 
@@ -292,6 +293,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
     public void OnClick_SelectShinobi()
     {
         characterNameText.text = "Shinobi";
+                PlayerPrefs.SetString("CharacterSelected", "Shinobi");
         CharacterSpriteButton.GetComponent<Image>().sprite = ShinobiSprite;
         CharacterSpriteButton.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(110, 100);
         OnClick_ToLobby(); 
@@ -299,6 +301,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
     public void OnClick_SelectZealot()
     {
         characterNameText.text = "Zealot";
+        PlayerPrefs.SetString("CharacterSelected", "Zealot");
         CharacterSpriteButton.GetComponent<Image>().sprite = ZealotSprite;
         CharacterSpriteButton.GetComponent<Image>().rectTransform.sizeDelta = new Vector2(100, 100);
         OnClick_ToLobby(); 
@@ -357,7 +360,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
             WaitingPanel.SetActive(false);
             if (maxPlayers == 1)
             {
-                LoadArena("SoloLevel");
+                LoadArena("TrainingLevel");
             }
             else if (maxPlayers == 2)
             {

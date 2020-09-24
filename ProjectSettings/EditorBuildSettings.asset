@@ -9,12 +9,12 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: e94fa2801c1f044c78b4742884381622
   - enabled: 1
+    path: Assets/Scenes/TrainingLevel.unity
+    guid: b62bc4700862a4d2d9129630fedeb892
+  - enabled: 1
     path: Assets/Scenes/SoloLevel.unity
     guid: fed7bf54e4a8a40f4b43d36549665430
   - enabled: 1
-    path: Assets/Scenes/SecondLevel.unity
-    guid: 4e770e452ffe343c0a1781b6312fece8
-  - enabled: 1
-    path: Assets/Scenes/TrainingLevel.unity
-    guid: b62bc4700862a4d2d9129630fedeb892
+    path: Assets/Scenes/QuadLevel.unity
+    guid: 4bf17960f14784138bf8efd68b1df840
   m_configObjects: {}
