@@ -48,7 +48,6 @@ public class MenuManager : MonoBehaviourPunCallbacks
 
     [HideInInspector] private bool Waiting = false;
     [HideInInspector] private bool HasSaveData = false;
-    [HideInInspector] private static String key = "b14ca5898a4e4133bbce2ea2315a1916";  
     [HideInInspector] private FirebaseAuth auth;
     [HideInInspector] private FirebaseFirestore db;
     [HideInInspector] private CollectionReference usersRef;
@@ -98,6 +97,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("No previous save data found");
             LobbyPanel.SetActive(false);
+            LoadingPanel.SetActive(false);
             AccountPanel.SetActive(true);
             Debug.Log("JoinedLobby()");
             base.OnJoinedLobby();   
@@ -439,8 +439,8 @@ public class MenuManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("SaveLogin()");
             StreamWriter writer = new StreamWriter(Application.persistentDataPath + "/save.txt", false);
-            writer.WriteLine(EncryptString(key, EmailInput.text));
-            writer.WriteLine(EncryptString(key, PasswordInput.text));
+            writer.WriteLine(EmailInput.text);
+            writer.WriteLine(PasswordInput.text);
             writer.Close();
             HasSaveData = true;
         }
@@ -453,8 +453,8 @@ public class MenuManager : MonoBehaviourPunCallbacks
         try 
         {
             StreamReader reader = new StreamReader(Application.persistentDataPath + "/save.txt");
-            EmailInput.text = DecryptString(key, reader.ReadLine());
-            PasswordInput.text = DecryptString(key, reader.ReadLine());
+            EmailInput.text = reader.ReadLine();
+            PasswordInput.text = reader.ReadLine();
             reader.Close();
 
             if (EmailInput.text == "" || PasswordInput.text == "") 
@@ -469,67 +469,5 @@ public class MenuManager : MonoBehaviourPunCallbacks
             return false;
         }
     }
-
-    private static string EncryptString(string key, string plainText)  
-    {  
-        byte[] iv = new byte[16];  
-        byte[] array;  
-
-        using (Aes aes = Aes.Create())  
-        {  
-            aes.Key = Encoding.UTF8.GetBytes(key);  
-            aes.IV = iv;  
-
-            ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);  
-
-            using (MemoryStream memoryStream = new MemoryStream())  
-            {  
-                using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))  
-                {  
-                    using (StreamWriter streamWriter = new StreamWriter((Stream)cryptoStream))  
-                    {  
-                        streamWriter.Write(plainText);  
-                    }  
-
-                    array = memoryStream.ToArray();  
-                }  
-            }  
-        }  
-
-        return Convert.ToBase64String(array);  
-    }  
-
-    private static string DecryptString(string key, string cipherText)  
-    {  
-        byte[] iv = new byte[16]; 
-        byte[] buffer;
-        try 
-        { 
-            buffer = Convert.FromBase64String(cipherText); 
-        } 
-        catch (ArgumentNullException e)
-        {
-            return "";
-        }
-
-        using (Aes aes = Aes.Create())  
-        {  
-            aes.Key = Encoding.UTF8.GetBytes(key);  
-            aes.IV = iv;  
-            ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);  
-
-            using (MemoryStream memoryStream = new MemoryStream(buffer))  
-            {  
-                using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, decryptor, CryptoStreamMode.Read))  
-                {  
-                    using (StreamReader streamReader = new StreamReader((Stream)cryptoStream))  
-                    {  
-                        return streamReader.ReadToEnd();  
-                    }  
-                }  
-            }  
-        }  
-    } 
-
     #endregion
 }
