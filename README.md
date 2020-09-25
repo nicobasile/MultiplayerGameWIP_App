@@ -1,6 +1,6 @@
-This is a work in progress and my main priority right now!
+Zealot Strike is a multiplayer fighter game on IOS!
 
-This app will be a multiplayer fighter game on IOS and Android
+Check it out:
+http://www.nicobasile.com/projects/ZealotStrike
 
-I haven't decided on a name for this app.
-I will be updating this readme and adding more info and such later.
+I will be updating this readme and adding more info later.
